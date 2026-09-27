@@ -17,5 +17,16 @@ inputs:
     required: false
     default: .
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
+outputs:
+  outcome:
+    description: Whether the configured failure policy passed
+  finding-count:
+    description: Number of active findings
+  error-count:
+    description: Number of active error findings
+  current-versions:
+    description: JSON repository version inventory
+  result-json:
+    description: Complete JSON scan result

@@ -1,35 +1,51 @@
-import { statusFor, latestStable } from './versions.js';
-const common = { confidence: 'high' };
+import { isAtOrAfter, statusFor, latestStable, becomesUnsupportedBefore } from './versions.js';
+
+const checkoutDeprecation = '2026-07';
 export const rules = [
   {
-    id: 'UG-CHECKOUT-001', surface: 'checkout_ui_extension', severity: 'warning', title: 'Buyer journey intercept is deprecated', introducedIn: '2026-07',
+    id: 'UG-CHECKOUT-001', surface: 'checkout_ui_extension', severity: 'warning', title: 'Buyer journey intercept is deprecated', deprecatedIn: checkoutDeprecation, confidence: 'high',
     documentationUrl: 'https://shopify.dev/changelog/deprecating-the-usebuyerjourneyintercept-api-on-checkout-ui-extensions', migrationUrl: 'https://shopify.dev/changelog/deprecating-the-usebuyerjourneyintercept-api-on-checkout-ui-extensions',
-    description: 'useBuyerJourneyIntercept and buyerJourney.intercept are deprecated from Checkout UI extension version 2026-07. Migrate validation to a cart and checkout validation Function.', ...common,
-    detect(file) { if (!/\.(?:[jt]sx?|graphql|gql)$/.test(file.relativePath)) return []; return matches(file, /\b(?:useBuyerJourneyIntercept|buyerJourney\.intercept)\b/g, 'Replace client-side blocking with a cart and checkout validation Function.'); }
+    description: 'useBuyerJourneyIntercept and buyerJourney.intercept are deprecated from Checkout UI extension version 2026-07. Migrate validation to a cart and checkout validation Function.',
+    detect(file) { if (!/\.(?:[jt]sx?|graphql|gql)$/.test(file.relativePath)) return []; return matches(maskCommentsAndStrings(file.text), /\b(?:useBuyerJourneyIntercept|buyerJourney\.intercept)\b/g, 'Replace client-side blocking with a cart and checkout validation Function.'); },
+    evaluate(match, context) { return versionAware(match, this, context); }
   },
   {
-    id: 'UG-CHECKOUT-002', surface: 'checkout_ui_extension', severity: 'warning', title: 'Checkout block_progress capability is deprecated', introducedIn: '2026-07',
+    id: 'UG-CHECKOUT-002', surface: 'checkout_ui_extension', severity: 'warning', title: 'Checkout block_progress capability is deprecated', deprecatedIn: checkoutDeprecation, confidence: 'high',
     documentationUrl: 'https://shopify.dev/changelog/deprecating-the-usebuyerjourneyintercept-api-on-checkout-ui-extensions', migrationUrl: 'https://shopify.dev/changelog/deprecating-the-usebuyerjourneyintercept-api-on-checkout-ui-extensions',
-    description: 'The block_progress capability is deprecated from Checkout UI extension version 2026-07 and supports the deprecated buyer journey intercept API.', ...common,
-    detect(file) { if (!file.relativePath.endsWith('shopify.extension.toml') || !/\bblock_progress\b/.test(file.text)) return []; return matches(file, /\bblock_progress\b/g, 'Move validation logic to a cart and checkout validation Function.'); }
+    description: 'The block_progress capability is deprecated from Checkout UI extension version 2026-07 and supports the deprecated buyer journey intercept API.',
+    detect(file) { if (!file.relativePath.endsWith('shopify.extension.toml')) return []; return matches(maskTomlComments(file.text), /^\s*block_progress\s*=\s*(?:true|false)\s*$/gm, 'Move validation logic to a cart and checkout validation Function.'); },
+    evaluate(match, context) { return versionAware(match, this, context); }
   },
   {
-    id: 'UG-REST-001', surface: 'admin_rest_api', severity: 'warning', title: 'REST Admin API usage is legacy',
+    id: 'UG-REST-001', surface: 'admin_rest_api', severity: 'warning', title: 'REST Admin API usage is legacy', confidence: 'high',
     documentationUrl: 'https://shopify.dev/docs/api/admin-rest', migrationUrl: 'https://shopify.dev/docs/api/admin-graphql',
-    description: 'The REST Admin API is legacy. New public apps must use the GraphQL Admin API; existing integrations should plan migration where applicable.', ...common,
-    detect(file) { if (!/\.(?:[jt]sx?|graphql|gql)$/.test(file.relativePath)) return []; return [/\/admin\/api\/(?:\d{4}-\d{2}|latest|unstable)\/(?!graphql(?:\.json)?\b)/g, /\b(?:restResources|Rest\s*Admin|adminRest)\b/g].flatMap((pattern) => matches(file, pattern, 'Prefer the GraphQL Admin API for new work and plan migration for this REST integration.')); }
+    description: 'The REST Admin API is legacy. New public apps must use the GraphQL Admin API; existing integrations should plan migration where applicable.',
+    detect(file) { if (!/\.(?:[jt]sx?|graphql|gql)$/.test(file.relativePath)) return []; const patterns = [/\/admin\/api\/(?:\d{4}-(?:0[147]|10)|latest|unstable)\/(?!graphql(?:\.json)?\b)/g]; if (/shopify/i.test(file.text)) patterns.push(/\b(?:restResources|Rest\s*Admin|adminRest)\b/g); return patterns.flatMap((pattern) => matches(file.text, pattern, 'Prefer the GraphQL Admin API for new work and plan migration for this REST integration.')); },
+    evaluate(match) { return { ...match, classification: 'current', reason: this.description }; }
   },
   {
-    id: 'UG-VERSION-001', surface: 'versioned_api', severity: 'error', title: 'Shopify API version is unsupported',
-    documentationUrl: 'https://shopify.dev/docs/api/usage/versioning', description: 'Shopify may fall forward when a request targets an inaccessible version. Pin to a supported stable version and test the migration.', ...common,
-    detect(file) { const pattern = /(?:\/admin\/api\/|api_version\s*[=:]\s*|apiVersion\s*[=:]\s*|version\s*[=:]\s*)["'`]?((?:20\d{2})-(?:0[1-9]|1[0-2]))/g; return matches(file, pattern, 'Update this target to a supported stable Shopify API version.', (match) => statusFor(match[1]) === 'unsupported'); }
+    id: 'UG-VERSION-001', surface: 'versioned_api', severity: 'error', title: 'Shopify API version is unsupported', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/docs/api/usage/versioning', description: 'Shopify may fall forward when a request targets an inaccessible version. Pin to a supported stable version and test the migration.',
+    detect() { return []; },
+    evaluate(match, context) { const currentStatus = statusFor(match.version); const targetRisk = becomesUnsupportedBefore(match.version, context.targetVersion); if (currentStatus !== 'unsupported' && !targetRisk) return null; return { ...match, classification: currentStatus === 'unsupported' ? 'current' : 'target', reason: currentStatus === 'unsupported' ? this.description : `This version becomes inaccessible by target ${context.targetVersion}. ${this.description}` }; }
   },
   {
-    id: 'UG-VERSION-002', surface: 'versioned_api', severity: 'info', title: 'Shopify API version is not the latest stable',
-    documentationUrl: 'https://shopify.dev/docs/api/usage/versioning', description: `The latest bundled stable version is ${latestStable.version}. Older supported versions remain usable, but quarterly upgrades reduce migration risk.`, ...common,
-    detect(file) { const pattern = /(?:\/admin\/api\/|api_version\s*[=:]\s*|apiVersion\s*[=:]\s*|version\s*[=:]\s*)["'`]?((?:20\d{2})-(?:0[1-9]|1[0-2]))/g; return matches(file, pattern, `Review this version against the latest stable ${latestStable.version}.`, (match) => statusFor(match[1]) === 'stable' && match[1] !== latestStable.version); }
+    id: 'UG-VERSION-002', surface: 'versioned_api', severity: 'info', title: 'Shopify API version is not the latest stable', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/docs/api/usage/versioning', description: `The latest bundled stable version is ${latestStable.version}. Older supported versions remain usable, but quarterly upgrades reduce migration risk.`,
+    detect() { return []; },
+    evaluate(match) { if (statusFor(match.version) === 'stable' && match.version !== latestStable.version) return { ...match, classification: 'current', reason: this.description }; return null; }
   }
 ];
-function matches(file, pattern, guidance, predicate = () => true) {
-  return [...file.text.matchAll(pattern)].filter(predicate).map((match) => { const before = file.text.slice(0, match.index); return { line: before.split('\n').length, column: match.index - before.lastIndexOf('\n'), snippet: match[0], guidance }; });
+
+export function ruleById(id) { return rules.find((rule) => rule.id === id); }
+function versionAware(match, rule, context) {
+  const current = context.inventory.find((item) => item.surface === 'checkout_ui_extension')?.version;
+  const currentAffected = current && isAtOrAfter(current, rule.deprecatedIn);
+  const targetAffected = isAtOrAfter(context.targetVersion, rule.deprecatedIn);
+  if (!currentAffected && !targetAffected) return null;
+  return { ...match, classification: currentAffected ? 'current' : 'target', reason: currentAffected ? rule.description : `This API becomes deprecated before target ${context.targetVersion}. ${rule.description}` };
 }
+function matches(text, pattern, guidance) { return [...text.matchAll(pattern)].map((match) => { const before = text.slice(0, match.index); return { file: null, line: before.split('\n').length, column: match.index - before.lastIndexOf('\n'), snippet: match[0], guidance }; }); }
+export function attachFile(matchesForFile, file) { return matchesForFile.map((match) => ({ ...match, file: file.relativePath })); }
+function maskCommentsAndStrings(text) { return text.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\/|(['"`])(?:\\.|(?!\1)[^\\])*\1/g, (value) => value.replace(/[^\n]/g, ' ')); }
+function maskTomlComments(text) { return text.replace(/#[^\n]*/g, (value) => value.replace(/[^\n]/g, ' ')); }
