@@ -1,0 +1,21 @@
+name: Shopify Upgrade Guard
+description: Detect documented Shopify API and platform upgrade risks in your repository
+author: Efegokdemir
+branding:
+  icon: shield
+  color: purple
+inputs:
+  target:
+    description: Shopify target version, for example 2026-10
+    required: false
+  fail-on:
+    description: never, error, warning, or info
+    required: false
+    default: never
+  path:
+    description: Repository path to scan
+    required: false
+    default: .
+runs:
+  using: node20
+  main: dist/index.js

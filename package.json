@@ -1,0 +1,15 @@
+{
+  "name": "shopify-upgrade-guard",
+  "version": "0.1.0",
+  "description": "Offline static analysis for Shopify platform and API upgrade risks.",
+  "type": "module",
+  "bin": { "shopify-upgrade-guard": "src/cli.js", "upgradeguard": "src/cli.js" },
+  "files": ["src", "data", "action.yml", "dist", "README.md", "LICENSE"],
+  "scripts": { "test": "node --test", "lint": "node --check src/cli.js && node --check src/scan.js", "pack:check": "npm pack --dry-run" },
+  "engines": { "node": ">=20" },
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/efegokdemir/shopify-upgrade-guard.git" },
+  "bugs": { "url": "https://github.com/efegokdemir/shopify-upgrade-guard/issues" },
+  "keywords": ["shopify", "shopify-api", "github-actions", "developer-tools", "migration", "deprecation"],
+  "publishConfig": { "provenance": true }
+}

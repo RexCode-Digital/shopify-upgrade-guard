@@ -1,0 +1,4 @@
+name = "Legacy checkout"
+api_version = "2025-01"
+[[extensions.capabilities]]
+block_progress = true
