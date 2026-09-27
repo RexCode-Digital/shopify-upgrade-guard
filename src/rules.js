@@ -20,7 +20,7 @@ export const rules = [
     id: 'UG-REST-001', surface: 'admin_rest_api', severity: 'warning', title: 'REST Admin API usage is legacy', confidence: 'high',
     documentationUrl: 'https://shopify.dev/docs/api/admin-rest', migrationUrl: 'https://shopify.dev/docs/api/admin-graphql',
     description: 'The REST Admin API is legacy. New public apps must use the GraphQL Admin API; existing integrations should plan migration where applicable.',
-    detect(file) { if (!/\.(?:[jt]sx?|graphql|gql)$/.test(file.relativePath)) return []; const patterns = [/\/admin\/api\/(?:\d{4}-(?:0[147]|10)|latest|unstable)\/(?!graphql(?:\.json)?\b)/g]; if (/shopify/i.test(file.text)) patterns.push(/\b(?:restResources|Rest\s*Admin|adminRest)\b/g); return patterns.flatMap((pattern) => matches(file.text, pattern, 'Prefer the GraphQL Admin API for new work and plan migration for this REST integration.')); },
+    detect(file) { if (!/\.(?:[jt]sx?|graphql|gql)$/.test(file.relativePath)) return []; const patterns = [/\/admin\/api\/(?:\d{4}-(?:0[147]|10)|latest|unstable)\/(?!graphql(?:\.json)?\b)/g]; if (/shopify/i.test(file.text)) patterns.push(/\b(?:restResources|Rest\s*Admin|adminRest)\b/g); const found = patterns.flatMap((pattern) => matches(file.text, pattern, 'Prefer the GraphQL Admin API for new work and plan migration for this REST integration.')); return found.length ? [found[0]] : []; },
     evaluate(match) { return { ...match, classification: 'current', reason: this.description }; }
   },
   {

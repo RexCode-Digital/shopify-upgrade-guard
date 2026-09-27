@@ -32,7 +32,7 @@ function inventoryFor(file) {
     for (const match of matchVersion(file.text, /\/admin\/api\/(\d{4}-(?:0[147]|10))\/graphql(?:\.json)?\b/g)) entries.push({ surface: 'admin_graphql_api', version: match.version, file: file.relativePath, line: match.line, source: 'admin_graphql_url' });
     if (/shopify/i.test(file.text)) for (const match of matchVersion(file.text, /\b(?:apiVersion|api_version)\s*[:=]\s*["'](\d{4}-(?:0[147]|10))["']/g)) entries.push({ surface: 'shopify_client', version: match.version, file: file.relativePath, line: match.line, source: 'client_configuration' });
   }
-  return [...new Map(entries.map((item) => [`${item.surface}|${item.version}|${item.file}|${item.line}`, item])).values()];
+  return [...new Map(entries.map((item) => [`${item.surface}|${item.version}|${item.file}`, item])).values()];
 }
 function matchVersion(text, pattern) { return [...text.matchAll(pattern)].map((match) => { const before = text.slice(0, match.index + match[0].indexOf(match[1])); return { version: parseVersion(match[1]), line: before.split('\n').length }; }); }
 function surfaceForToml(path, text) { const normalized = path.toLowerCase(); if (normalized.includes('checkout') || /\bblock_progress\b/.test(text)) return 'checkout_ui_extension'; if (normalized.includes('customer')) return 'customer_account_ui_extension'; if (normalized.includes('pos')) return 'pos_ui_extension'; if (normalized.includes('function')) return 'shopify_function'; return normalized.endsWith('shopify.app.toml') ? 'shopify_app' : 'extension'; }
