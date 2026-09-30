@@ -69,6 +69,8 @@ jobs:
 
 For high-assurance production workflows, pin third-party Actions to a reviewed immutable commit SHA.
 
+For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-upgrade-guard@v0.2`. For high-assurance supply-chain usage, pin the full commit SHA; minor aliases are not immutable.
+
 ### Action inputs
 
 | Input | Purpose |
