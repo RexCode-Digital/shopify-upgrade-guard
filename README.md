@@ -4,7 +4,7 @@ Shopify Upgrade Guard detects documented Shopify platform/API upgrade risks in y
 
 > Unofficial open-source developer tooling. Not affiliated with, endorsed by, or certified by Shopify.
 
-This repository is a `0.1.0` candidate. npm publication and a GitHub Release are intentionally pending until the core product passes its release gates.
+This repository contains the `0.2.0` release candidate. It is an offline, evidence-backed scanner for Shopify platform and API upgrade risks.
 
 ## Try it locally
 
@@ -34,17 +34,17 @@ steps:
       fail-on: warning
 ```
 
-Inputs: `target`, `fail-on` (`never`, `error`, `warning`, or `info`), and `path`.
+Inputs: `target`, `fail-on` (`never`, `error`, `warning`, or `info`), `fail-on-new`, and `path`.
 
-Outputs: `outcome`, `finding-count`, `error-count`, `current-versions` (the structured inventory), and `result-json`.
+Outputs: `outcome`, `finding-count`, `new-finding-count`, `error-count`, `current-versions` (the structured inventory), and `result-json`.
 
 The Action uses the current GitHub `node24` JavaScript Action runtime. Consumers do not install dependencies.
 
 ## CLI
 
 ```text
-node src/cli.js scan [--target YYYY-MM] [--format human|json|sarif] [--fail-on ...]
-node src/cli.js baseline [--path DIR]
+node src/cli.js scan [--target YYYY-MM] [--format human|json|sarif] [--fail-on ...] [--fail-on-new]
+node src/cli.js baseline create|check [--path DIR]
 node src/cli.js rules
 node src/cli.js versions
 node src/cli.js explain UG-CHECKOUT-001
@@ -77,6 +77,10 @@ The initial pack is deliberately small and high-precision. Every finding include
 | UG-REST-001 | Versioned REST Admin URL or explicit REST client marker | [REST Admin API](https://shopify.dev/docs/api/admin-rest) |
 | UG-VERSION-001 | Unsupported or target-retiring version in the inventory | [API versioning](https://shopify.dev/docs/api/usage/versioning) |
 | UG-VERSION-002 | Supported version older than latest stable | [API versioning](https://shopify.dev/docs/api/usage/versioning) |
+| UG-CUSTOMER-001 | Customer Account checkout fields/types removed in 2026-10 | [Shopify changelog](https://shopify.dev/changelog/customer-account-api-last-incomplete-checkout-and-checkout-types-removed) |
+| UG-POS-001 | Removed POS `session.currentSession.staffMemberId` | [Shopify changelog](https://shopify.dev/changelog/removed-session-currentsession-staffmemberid-from-pos-ui-extensions-2026-10) |
+| UG-ADMIN-001 | Legacy Admin GraphQL `priceRule` usage | [2026-10 release notes](https://shopify.dev/release-notes/2026-10) |
+| UG-SCRIPT-001 | Script Tag create/update usage | [Script Tag deprecation](https://shopify.dev/changelog/online-store-script-tags-deprecation) |
 
 Supported inventory surfaces currently include Admin REST, Admin GraphQL, Checkout UI extensions, Customer Account UI extensions, POS UI extensions, Functions, Shopify app TOML, and recognized Shopify client configuration.
 
@@ -86,4 +90,4 @@ No telemetry, Shopify credentials, store access, or network access is required f
 
 ## Roadmap and limitations
 
-GraphQL schema deprecation validation, richer Functions/Customer Account/POS rules, and exact base-tree PR resolution require additional maintained evidence and are not claimed as implemented. See [ROADMAP.md](ROADMAP.md).
+GraphQL schema-wide deprecation validation and exact base-tree resolved-finding reconstruction require additional maintained evidence and are not claimed as implemented. See [ROADMAP.md](ROADMAP.md).

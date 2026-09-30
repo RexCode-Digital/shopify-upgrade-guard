@@ -28,3 +28,14 @@ test('REST URL matches but GraphQL URL does not', async () => {
 });
 test('unrelated REST-like identifiers do not match without Shopify context', async () => { const root = await makeRepo({ 'utility.js': 'const restResources = registry.resources;' }); const result = await scan(root); assert.equal(result.findings.some((finding) => finding.ruleId === 'UG-REST-001'), false); });
 test('unrelated TOML version keys are not Shopify inventory', async () => { const root = await makeRepo({ 'tool.toml': 'api_version = "2025-01"' }); const result = await scan(root); assert.equal(result.inventory.length, 0); });
+test('2026-10 removal rules report documented migration targets', async () => {
+  const root = await makeRepo({
+    'customer.graphql': 'query { customer { lastIncompleteCheckout { id } } }',
+    'pos.ts': 'const id = session.currentSession.staffMemberId;',
+    'admin.graphql': 'query { draftOrder { priceRule { id } } }',
+    'scripts.ts': 'await admin.graphql("mutation { scriptTagCreate { userErrors { message } } }");'
+  });
+  const result = await scan(root, { target: '2026-10' });
+  assert.deepEqual(ids(result).filter((id) => id.startsWith('UG-')).sort(), ['UG-ADMIN-001', 'UG-CUSTOMER-001', 'UG-POS-001', 'UG-SCRIPT-001']);
+  assert.ok(result.findings.every((finding) => ['UNCHANGED', 'NEW', 'EXISTING'].includes(finding.lifecycle)));
+});
