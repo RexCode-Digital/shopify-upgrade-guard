@@ -1,0 +1,18 @@
+name: Shopify Upgrade Guard
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  upgrade-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: efegokdemir/shopify-upgrade-guard@v0.2.1
+        with:
+          target: 2026-10
+          fail-on: warning
+          fail-on-new: 'true'
