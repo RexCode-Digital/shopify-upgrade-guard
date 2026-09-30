@@ -172,6 +172,14 @@ Ordinary scans:
 
 See [SECURITY.md](SECURITY.md) and the [threat model](docs/threat-model.md).
 
+## Related Shopify developer tools
+
+Building or maintaining Shopify apps?
+
+- **[ChangeGuard](https://github.com/efegokdemir/shopify-app-changeguard)** — Review meaningful `shopify.app*.toml` configuration changes before they reach production.
+
+Both tools are offline, open-source, and require no Shopify credentials.
+
 ## Contributing
 
 Contributions are welcome, especially new evidence-backed Shopify migration rules and scanner hardening.
