@@ -60,14 +60,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: efegokdemir/shopify-upgrade-guard@v0.2.1
+      - uses: efegokdemir/shopify-upgrade-guard@05221e7582b701b5399b4f27d35ed92257f5ef0c # v0.2.1
         with:
           target: 2026-10
           fail-on: warning
           fail-on-new: 'true'
 ```
 
-For high-assurance production workflows, pin third-party Actions to a reviewed immutable commit SHA.
+For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-upgrade-guard@v0.2`. For high-assurance production workflows, pin the full reviewed commit SHA shown above; minor aliases are not immutable.
 
 For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-upgrade-guard@v0.2`. For high-assurance supply-chain usage, pin the full commit SHA; minor aliases are not immutable.
 
