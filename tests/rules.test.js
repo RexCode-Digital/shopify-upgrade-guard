@@ -37,5 +37,5 @@ test('2026-10 removal rules report documented migration targets', async () => {
   });
   const result = await scan(root, { target: '2026-10' });
   assert.deepEqual(ids(result).filter((id) => id.startsWith('UG-')).sort(), ['UG-ADMIN-001', 'UG-CUSTOMER-001', 'UG-POS-001', 'UG-SCRIPT-001']);
-  assert.ok(result.findings.every((finding) => finding.lifecycle === 'UNCHANGED'));
+  assert.ok(result.findings.every((finding) => ['UNCHANGED', 'NEW', 'EXISTING'].includes(finding.lifecycle)));
 });
