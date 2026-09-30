@@ -4,7 +4,7 @@ Shopify Upgrade Guard detects documented Shopify platform/API upgrade risks in y
 
 > Unofficial open-source developer tooling. Not affiliated with, endorsed by, or certified by Shopify.
 
-This repository contains the `0.2.0` release candidate. It is an offline, evidence-backed scanner for Shopify platform and API upgrade risks.
+This repository contains the `0.2.1` hotfix release. It is an offline, evidence-backed scanner for Shopify platform and API upgrade risks.
 
 ## Try it locally
 
