@@ -12,6 +12,10 @@ inputs:
     description: never, error, warning, or info
     required: false
     default: never
+  fail-on-new:
+    description: Apply fail-on only to findings introduced by the pull request
+    required: false
+    default: 'false'
   path:
     description: Repository path to scan
     required: false
@@ -20,6 +24,8 @@ runs:
   using: node24
   main: dist/index.js
 outputs:
+  new-finding-count:
+    description: Number of findings classified as NEW
   outcome:
     description: Whether the configured failure policy passed
   finding-count:

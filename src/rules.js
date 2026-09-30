@@ -1,12 +1,14 @@
 import { isAtOrAfter, statusFor, latestStable, becomesUnsupportedBefore } from './versions.js';
 
 const checkoutDeprecation = '2026-07';
+const removalVersion = '2026-10';
+const sourceExtensions = /\.(?:[jt]sx?|graphql|gql)$/;
 export const rules = [
   {
     id: 'UG-CHECKOUT-001', surface: 'checkout_ui_extension', severity: 'warning', title: 'Buyer journey intercept is deprecated', deprecatedIn: checkoutDeprecation, confidence: 'high',
     documentationUrl: 'https://shopify.dev/changelog/deprecating-the-usebuyerjourneyintercept-api-on-checkout-ui-extensions', migrationUrl: 'https://shopify.dev/changelog/deprecating-the-usebuyerjourneyintercept-api-on-checkout-ui-extensions',
     description: 'useBuyerJourneyIntercept and buyerJourney.intercept are deprecated from Checkout UI extension version 2026-07. Migrate validation to a cart and checkout validation Function.',
-    detect(file) { if (!/\.(?:[jt]sx?|graphql|gql)$/.test(file.relativePath)) return []; return matches(maskCommentsAndStrings(file.text), /\b(?:useBuyerJourneyIntercept|buyerJourney\.intercept)\b/g, 'Replace client-side blocking with a cart and checkout validation Function.'); },
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return matches(maskCommentsAndStrings(file.text), /\b(?:useBuyerJourneyIntercept|buyerJourney\.intercept)\b/g, 'Replace client-side blocking with a cart and checkout validation Function.'); },
     evaluate(match, context) { return versionAware(match, this, context); }
   },
   {
@@ -15,6 +17,34 @@ export const rules = [
     description: 'The block_progress capability is deprecated from Checkout UI extension version 2026-07 and supports the deprecated buyer journey intercept API.',
     detect(file) { if (!file.relativePath.endsWith('shopify.extension.toml')) return []; return matches(maskTomlComments(file.text), /^\s*block_progress\s*=\s*(?:true|false)\s*$/gm, 'Move validation logic to a cart and checkout validation Function.'); },
     evaluate(match, context) { return versionAware(match, this, context); }
+  },
+  {
+    id: 'UG-CUSTOMER-001', surface: 'customer_account_api', severity: 'error', title: 'Customer Account checkout types are removed', removedIn: removalVersion, confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/customer-account-api-last-incomplete-checkout-and-checkout-types-removed', migrationUrl: 'https://shopify.dev/changelog/customer-account-api-last-incomplete-checkout-and-checkout-types-removed',
+    description: 'Customer.lastIncompleteCheckout and the Checkout type subtree are removed in API version 2026-10 with no replacement. Use Storefront cart flows or Customer.orders as appropriate.',
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return matches(maskComments(file.text), /\blastIncompleteCheckout\b|\bCheckout\s*\{/g, 'Remove the Customer Account checkout field/type usage and migrate to Storefront cart flows or Customer.orders.'); },
+    evaluate(match, context) { return removalAware(match, this, context); }
+  },
+  {
+    id: 'UG-POS-001', surface: 'pos_ui_extension', severity: 'error', title: 'POS currentSession.staffMemberId is removed', removedIn: removalVersion, confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/removed-session-currentsession-staffmemberid-from-pos-ui-extensions-2026-10', migrationUrl: 'https://shopify.dev/changelog/removed-session-currentsession-staffmemberid-from-pos-ui-extensions-2026-10',
+    description: 'session.currentSession.staffMemberId is removed from POS UI Extensions in API version 2026-10. Use session.staffMember.value?.id or subscribe to staffMember.',
+    detect(file) { if (!/\.(?:[jt]sx?)$/.test(file.relativePath)) return []; return matches(maskComments(file.text), /\bsession\.currentSession\.staffMemberId\b/g, 'Use session.staffMember.value?.id or subscribe to the staffMember signal.'); },
+    evaluate(match, context) { return removalAware(match, this, context); }
+  },
+  {
+    id: 'UG-ADMIN-001', surface: 'admin_graphql_api', severity: 'warning', title: 'Legacy GraphQL priceRule field is removed', removedIn: removalVersion, confidence: 'medium',
+    documentationUrl: 'https://shopify.dev/release-notes/2026-10', migrationUrl: 'https://shopify.dev/release-notes/2026-10',
+    description: 'Legacy priceRule fields and types are removed from the Admin GraphQL API in 2026-10. Use discountTitle or discountCode where applicable.',
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return matches(maskComments(file.text), /\bpriceRule\b/g, 'Replace priceRule usage with the supported discountTitle or discountCode fields.'); },
+    evaluate(match, context) { return removalAware(match, this, context); }
+  },
+  {
+    id: 'UG-SCRIPT-001', surface: 'online_store_script_tags', severity: 'error', title: 'Script Tag creation and updates are deprecated', deprecatedIn: removalVersion, confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/online-store-script-tags-deprecation', migrationUrl: 'https://shopify.dev/docs/apps/build/online-store/script-tag-deprecation',
+    description: 'ScriptTag create/update operations error from 2026-10 and storefront injection stops in 2027-03. Migrate to a theme app extension/app embed block or web pixel.',
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return matches(maskComments(file.text), /\b(?:scriptTagCreate|scriptTagUpdate|script_tags)\b/g, 'Migrate Script Tag injection to a theme app extension/app embed block or web pixel.'); },
+    evaluate(match, context) { return removalAware(match, this, context); }
   },
   {
     id: 'UG-REST-001', surface: 'admin_rest_api', severity: 'warning', title: 'REST Admin API usage is legacy', confidence: 'high',
@@ -45,7 +75,12 @@ function versionAware(match, rule, context) {
   if (!currentAffected && !targetAffected) return null;
   return { ...match, classification: currentAffected ? 'current' : 'target', reason: currentAffected ? rule.description : `This API becomes deprecated before target ${context.targetVersion}. ${rule.description}` };
 }
+function removalAware(match, rule, context) {
+  if (!isAtOrAfter(context.targetVersion, rule.removedIn ?? rule.deprecatedIn)) return null;
+  return { ...match, classification: 'target', reason: `This usage is affected by target ${context.targetVersion}. ${rule.description}` };
+}
 function matches(text, pattern, guidance) { return [...text.matchAll(pattern)].map((match) => { const before = text.slice(0, match.index); return { file: null, line: before.split('\n').length, column: match.index - before.lastIndexOf('\n'), snippet: match[0], guidance }; }); }
 export function attachFile(matchesForFile, file) { return matchesForFile.map((match) => ({ ...match, file: file.relativePath })); }
 function maskCommentsAndStrings(text) { return text.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\/|(['"`])(?:\\.|(?!\1)[^\\])*\1/g, (value) => value.replace(/[^\n]/g, ' ')); }
+function maskComments(text) { return text.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (value) => value.replace(/[^\n]/g, ' ')); }
 function maskTomlComments(text) { return text.replace(/#[^\n]*/g, (value) => value.replace(/[^\n]/g, ' ')); }
