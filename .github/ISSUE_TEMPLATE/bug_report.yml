@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a reproducible problem in Shopify Upgrade Guard
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Please avoid including merchant data, credentials, tokens, or private source.
+  - type: input
+    id: version
+    attributes:
+      label: Upgrade Guard version
+      placeholder: 0.2.1
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js and npm versions
+      placeholder: Node 24.x, npm 11.x
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command or GitHub Action configuration
+      description: Remove secrets before pasting.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Prefer a small public fixture or sanitized snippet.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed credentials, merchant data, and private source from this report.
+          required: true
+        - label: I checked existing issues for duplicates.
+          required: true
