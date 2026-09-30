@@ -1,0 +1,50 @@
+name: Shopify rule request
+description: Propose an evidence-backed Shopify upgrade or deprecation check
+title: "[Rule] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Upgrade Guard only adds Shopify-specific rules backed by official Shopify evidence and a reliable static detection strategy.
+  - type: input
+    id: surface
+    attributes:
+      label: Shopify surface
+      placeholder: Admin GraphQL, Customer Account, POS UI Extensions, Functions...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Affected version or lifecycle status
+      placeholder: 2026-10 removal / deprecated in 2026-07
+    validations:
+      required: true
+  - type: input
+    id: evidence
+    attributes:
+      label: Official Shopify evidence URL
+      placeholder: https://shopify.dev/...
+    validations:
+      required: true
+  - type: textarea
+    id: pattern
+    attributes:
+      label: What source usage should be detected?
+      description: Show a minimal sanitized example where possible.
+    validations:
+      required: true
+  - type: textarea
+    id: migration
+    attributes:
+      label: Expected migration guidance
+    validations:
+      required: true
+  - type: textarea
+    id: falsepositives
+    attributes:
+      label: False-positive risks
+      description: What similar code should NOT trigger this rule?
+    validations:
+      required: true

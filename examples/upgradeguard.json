@@ -1,0 +1,7 @@
+{
+  "targetVersion": "2026-10",
+  "failOn": "warning",
+  "exclude": [
+    "fixtures/**"
+  ]
+}
