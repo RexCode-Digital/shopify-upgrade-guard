@@ -11,7 +11,7 @@ export async function discover(root, options = {}) {
     try { entries = await readdir(directory, { withFileTypes: true }); } catch (error) { if (error.code === 'ENOENT') return; throw error; }
     for (const entry of entries) {
       if (entry.name.startsWith('.') && entry.name !== '.upgradeguard.json') continue;
-      const path = join(directory, entry.name); const relativePath = relative(root, path);
+      const path = join(directory, entry.name); const relativePath = relative(root, path).replaceAll('\\', '/');
       if (entry.isDirectory()) { if (!IGNORED_DIRECTORIES.has(entry.name) && !isExcluded(relativePath, excludes)) await walk(path); continue; }
       if (entry.isSymbolicLink()) continue;
       const extension = entry.name.endsWith('.toml') ? '.toml' : extname(entry.name);
