@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 - 2026-10-01
+
+- Updated the official Shopify version registry: 2026-10 is now latest stable and 2026-07 is stable.
+- Re-audited the 2026-10 release changes; no additional deterministic static rule was added because the remaining changes require schema or runtime context.
+
 ## 0.2.1 - 2026-09-30
 
 - Fixed npm release packaging so runtime dependencies remain empty and fresh public-registry installs are verified before release completion.
