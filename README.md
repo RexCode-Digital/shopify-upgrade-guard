@@ -177,6 +177,7 @@ See [SECURITY.md](SECURITY.md) and the [threat model](docs/threat-model.md).
 Building or maintaining Shopify apps?
 
 - **[ChangeGuard](https://github.com/efegokdemir/shopify-app-changeguard)** — Review meaningful `shopify.app*.toml` configuration changes before they reach production.
+- **[Shopify Scope Guard](https://github.com/efegokdemir/shopify-scope-guard)** — Audit whether declared Shopify permissions are supported by offline code evidence.
 
 Both tools are offline, open-source, and require no Shopify credentials.
 
