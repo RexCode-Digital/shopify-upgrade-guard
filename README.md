@@ -180,6 +180,8 @@ Building or maintaining Shopify apps?
 - **[Shopify Scope Guard](https://github.com/efegokdemir/shopify-scope-guard)** — Audit whether declared Shopify permissions are supported by offline code evidence.
 - **[Shopify App Review Guard](https://github.com/efegokdemir/shopify-app-review-guard)** — Run deterministic preflight checks for Shopify App Store and production readiness.
 
+GitHub Marketplace: [Shopify Upgrade Guard](https://github.com/marketplace/actions/shopify-upgrade-guard)
+
 Both tools are offline, open-source, and require no Shopify credentials.
 
 ## Contributing
