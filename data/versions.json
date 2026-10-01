@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-30",
+  "verifiedAt": "2026-10-01",
   "source": "https://shopify.dev/docs/api/usage/versioning",
   "versions": [
     { "version": "2025-01", "releaseDate": "2025-01-01", "accessibleUntil": "2026-01-16T15:00:00Z", "status": "unsupported" },
@@ -8,7 +8,7 @@
     { "version": "2025-10", "releaseDate": "2025-10-01", "accessibleUntil": "2026-10-16T15:00:00Z", "status": "stable" },
     { "version": "2026-01", "releaseDate": "2026-01-01", "accessibleUntil": "2027-01-16T15:00:00Z", "status": "stable" },
     { "version": "2026-04", "releaseDate": "2026-04-01", "accessibleUntil": "2027-04-16T15:00:00Z", "status": "stable" },
-    { "version": "2026-07", "releaseDate": "2026-07-01", "accessibleUntil": "2027-07-16T15:00:00Z", "status": "latest-stable" },
-    { "version": "2026-10", "releaseDate": "2026-10-01", "accessibleUntil": "2027-10-16T15:00:00Z", "status": "release-candidate" }
+    { "version": "2026-07", "releaseDate": "2026-07-01", "accessibleUntil": "2027-07-16T15:00:00Z", "status": "stable" },
+    { "version": "2026-10", "releaseDate": "2026-10-01", "accessibleUntil": "2027-10-16T15:00:00Z", "status": "latest-stable" }
   ]
 }
