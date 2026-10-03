@@ -1,4 +1,5 @@
-{
+// Generated from data/versions.json.
+export default {
   "verifiedAt": "2026-10-04",
   "source": "https://shopify.dev/docs/api/usage/versioning",
   "versions": [
@@ -57,4 +58,4 @@
       "status": "release-candidate"
     }
   ]
-}
+};

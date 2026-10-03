@@ -10,8 +10,11 @@ jobs:
   upgrade-guard:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: efegokdemir/shopify-upgrade-guard@v0.2.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: efegokdemir/shopify-upgrade-guard@v0.2.3
         with:
           target: 2026-10
           fail-on: warning

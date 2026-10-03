@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 export async function changedLines(root, baseRef) {
-  if (!baseRef || baseRef.includes('..') || !/^[A-Za-z0-9_./-]+$/.test(baseRef)) return null;
-  const output = await runGit(root, ['diff', '--no-ext-diff', '--unified=0', `${baseRef}...HEAD`, '--']);
+  if (!baseRef || baseRef.startsWith('-') || baseRef.includes('..') || !/^[A-Za-z0-9_./-]+$/.test(baseRef)) throw new Error('Invalid Git base ref');
+  const output = await runGit(root, ['-c', 'core.quotePath=false', 'diff', '--no-ext-diff', '--no-textconv', '--unified=0', `${baseRef}...HEAD`, '--']);
   const ranges = new Map(); let file = null;
   for (const line of output.split('\n')) {
     if (line.startsWith('+++ b/')) { file = line.slice(6); continue; }

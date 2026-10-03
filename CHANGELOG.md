@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.3
+
+- Correct ScriptTag write restrictions across API targets and add the documented automaticDiscounts removal in 2027-01.
+- Fail on invalid options and unavailable Git comparisons; make baseline checks honor accepted findings.
+- Reject unsafe config/baseline paths, bound file analysis, and include named Shopify configurations.
+- Preserve Node 20 compatibility, validate standalone bundles and clean packages, and report source-only coverage.
+
 ## 0.2.2 - 2026-10-01
 
 - Updated the official Shopify version registry: 2026-10 is now latest stable and 2026-07 is stable.

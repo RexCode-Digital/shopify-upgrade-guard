@@ -1,6 +1,6 @@
 {
   "name": "shopify-upgrade-guard",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Offline static analysis for Shopify platform and API upgrade risks.",
   "type": "module",
   "bin": {
@@ -17,11 +17,14 @@
   ],
   "scripts": {
     "test": "node --test",
-    "coverage": "c8 --exclude 'dist/**' --exclude 'node_modules/**' --check-coverage --lines 90 --statements 90 --functions 85 --branches 85 --reporter=text --reporter=text-summary node --test",
-    "lint": "node --check src/cli.js && node --check src/scan.js && node --check src/action.js",
+    "coverage": "c8 --include 'src/**' --check-coverage --lines 90 --statements 90 --functions 85 --branches 85 --reporter=text --reporter=text-summary --reporter=json-summary node --test",
+    "lint": "node scripts/check-source.mjs",
     "build:action": "ncc build src/action.js -o dist --minify",
     "check:dist": "npm run build:action && git diff --exit-code -- dist/index.js",
-    "pack:check": "npm pack --dry-run"
+    "pack:check": "npm pack --dry-run",
+    "package:smoke": "node scripts/package-smoke.mjs",
+    "action:check": "node scripts/check-action.mjs",
+    "prebuild:action": "node scripts/write-version.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -48,5 +51,9 @@
   "devDependencies": {
     "@vercel/ncc": "^0.38.3",
     "c8": "^10.1.3"
-  }
+  },
+  "dependencies": {
+    "graphql": "16.14.2"
+  },
+  "homepage": "https://github.com/efegokdemir/shopify-upgrade-guard#readme"
 }
