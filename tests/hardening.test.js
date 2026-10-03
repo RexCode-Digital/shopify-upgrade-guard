@@ -44,3 +44,9 @@ test('malformed configuration and baseline errors do not echo input values',asyn
  try{fs.writeFileSync(path.join(root,'.upgradeguard.json'),'{"private":"REDACTION_SENTINEL" broken}');await assert.rejects(()=>scan(root),e=>e.message.includes('malformed JSON')&&!e.message.includes('REDACTION_SENTINEL'));fs.rmSync(path.join(root,'.upgradeguard.json'));fs.writeFileSync(path.join(root,'.upgradeguard-baseline.json'),'{"private":"REDACTION_SENTINEL" broken}');await assert.rejects(()=>scan(root),e=>e.message.includes('malformed JSON')&&!e.message.includes('REDACTION_SENTINEL'));}
  finally{fs.rmSync(root,{recursive:true,force:true});}
 });
+
+test('ordinary scans do not implicitly compare GitHub PR environment refs',async t=>{
+ const root=fixture(t);const previous=process.env.GITHUB_BASE_REF;process.env.GITHUB_BASE_REF='missing-base';
+ try{const result=await scan(root);assert.equal(result.comparisonAvailable,false);}
+ finally{if(previous===undefined)delete process.env.GITHUB_BASE_REF;else process.env.GITHUB_BASE_REF=previous;}
+});

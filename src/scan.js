@@ -25,7 +25,7 @@ export async function scan(root, options = {}) {
     for (const match of matches) { const evaluated = rule.evaluate(match, context); if (evaluated) findings.push(toFinding(rule, evaluated, targetVersion)); }
   }
   const baseline = options.noBaseline ? { fingerprints: new Set(), entries: [], file: null } : await loadBaseline(root, options.baseline ?? config.baseline); let resultFindings = applyBaseline(dedupe(findings), baseline);
-  const baseRef = options.baseRef ?? process.env.GITHUB_BASE_REF;
+  const baseRef = options.baseRef;
   if (baseRef) { const ranges = await changedLines(root, baseRef); resultFindings = resultFindings.map(finding => ({ ...finding, changeStatus: isChanged(finding, ranges) ? 'introduced' : 'pre-existing', lifecycle: isChanged(finding, ranges) ? 'NEW' : 'EXISTING' })); }
   else resultFindings = resultFindings.map((finding) => ({ ...finding, lifecycle: finding.baselined ? 'EXISTING' : 'UNCHANGED' }));
   const active = resultFindings.filter((finding) => !finding.baselined); const currentProblems = active.filter((finding) => finding.classification === 'current'); const upgradeBlockers = active.filter((finding) => finding.classification === 'target');
