@@ -65,7 +65,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: efegokdemir/shopify-upgrade-guard@v0.2.3 # current patch release; resolve to a SHA below
+      - uses: efegokdemir/shopify-upgrade-guard@4e288cbc58a3186a7304785615f7255c0e3d0155 # v0.2.3
         with:
           target: 2026-10
           fail-on: warning
@@ -82,6 +82,7 @@ For convenience, workflows may use the movable minor release alias `efegokdemir/
 | `fail-on` | Policy threshold: `never`, `error`, `warning`, or `info` |
 | `fail-on-new` | Apply the failure threshold only to findings introduced by the PR |
 | `path` | Repository path to scan |
+| `base-ref` | Explicit Git base for comparison; defaults to origin/PR-base for new-only pull-request checks |
 
 ### Action outputs
 
@@ -220,7 +221,7 @@ MIT — see [LICENSE](LICENSE).
 
 ## Immutable SHA usage
 
-Resolve the release commit, review it, and replace `@v0.2.3` in the Action example with that full SHA:
+The Action example pins the reviewed v0.2.3 release commit. Verify the release reference with:
 
 ```bash
 gh api repos/efegokdemir/shopify-upgrade-guard/git/ref/tags/v0.2.3 --jq .object.sha
