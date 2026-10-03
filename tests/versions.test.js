@@ -16,8 +16,8 @@ test('compares quarterly versions centrally', () => {
 test('distinguishes stable, release candidate, unsupported, and future versions', () => {
   assert.equal(statusFor('2025-07'), 'unsupported');
   assert.equal(statusFor('2026-10'), 'latest-stable');
-  assert.equal(statusFor('2027-01'), 'unknown/future');
-  assert.equal(targetRecord('2027-01').status, 'unknown/future');
+  assert.equal(statusFor('2027-01'), 'release-candidate');
+  assert.equal(targetRecord('2027-01').status, 'release-candidate');
   assert.throws(() => targetRecord('2026-03'), /quarterly/);
 });
 test('calculates support horizon against target', () => {

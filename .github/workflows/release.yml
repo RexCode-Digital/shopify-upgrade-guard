@@ -2,66 +2,49 @@ name: Release
 on:
   push:
     tags: ['v*.*.*']
-  workflow_dispatch:
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with: { node-version: 24, registry-url: 'https://registry.npmjs.org' }
-      - name: Pin npm
-        run: npm install --global npm@11.15.0
-      - run: npm --version
-      - run: npm ci
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm install --global npm@11.15.0
+      - name: Verify immutable tag matches package version
+        shell: bash
+        run: test "${GITHUB_REF_NAME#v}" = "$(node -p "require('./package.json').version")"
+      - run: npm ci --ignore-scripts
+      - run: npm run build:action
       - run: npm test
       - run: npm run coverage
       - run: npm run lint
-      - run: npm run check:dist
-      - run: npm audit --omit=dev --audit-level=high
-      - name: Package and smoke test
-        shell: bash
-        run: |
-          set -euo pipefail
-          package_dir="$(mktemp -d)"
-          package_file="$(npm pack --silent --pack-destination "$package_dir")"
-          package_check_dir="$(mktemp -d)"
-          tar -xzf "$package_dir/$package_file" -C "$package_check_dir"
-          node --input-type=module - "$package_check_dir/package/package.json" <<'NODE'
-          import { readFileSync } from 'node:fs';
-          const packageJson = JSON.parse(readFileSync(process.argv[2], 'utf8'));
-          for (const key of ['dependencies', 'optionalDependencies', 'peerDependencies', 'bundledDependencies']) {
-            if (packageJson[key] && Object.keys(packageJson[key]).length > 0) {
-              throw new Error(`Unexpected runtime package metadata: ${key}`);
-            }
-          }
-          NODE
-          smoke_dir="$(mktemp -d)"
-          (cd "$smoke_dir" && npm init --yes >/dev/null && npm install --ignore-scripts --no-save "$package_dir/$package_file")
-          "$smoke_dir/node_modules/.bin/shopify-upgrade-guard" --version
-      - name: Publish to npm with provenance
-        run: npm publish --provenance --access public
-      - name: Verify public npm install
-        shell: bash
-        run: |
-          set -euo pipefail
-          verify_dir="$(mktemp -d)"
-          version="${GITHUB_REF_NAME#v}"
-          (cd "$verify_dir" && npm init --yes >/dev/null && npm install --ignore-scripts "shopify-upgrade-guard@$version")
-          test "$("$verify_dir/node_modules/.bin/shopify-upgrade-guard" --version)" = "$version"
-          "$verify_dir/node_modules/.bin/shopify-upgrade-guard" scan --path "$GITHUB_WORKSPACE/tests/fixtures/healthy" --format json >/dev/null
-      - name: Create GitHub Release
+      - run: npm audit --audit-level=high
+      - run: npm run package:smoke
+      - run: npm run action:check
+      - run: git diff --exit-code -- dist package.json package-lock.json
+      - run: npm publish --provenance --access public
+      - name: Create new GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --generate-notes
 
   maintain-minor-alias:
     name: Maintain minor release alias
     needs: release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

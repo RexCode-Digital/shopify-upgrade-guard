@@ -1,4 +1,4 @@
-import versionData from '../data/versions.json' with { type: 'json' };
+import versionData from './version-data.js';
 
 export const VERSION_SOURCE = versionData.source;
 export const versions = Object.freeze(versionData.versions);

@@ -14,6 +14,8 @@ Shopify Upgrade Guard is an offline, evidence-backed CLI and GitHub Action for S
 
 > Unofficial open-source developer tooling. Not affiliated with, endorsed by, or certified by Shopify.
 
+Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. [Releases](https://github.com/efegokdemir/shopify-upgrade-guard/releases) · [npm](https://www.npmjs.com/package/shopify-upgrade-guard) · [Marketplace](https://github.com/marketplace/actions/shopify-upgrade-guard)
+
 ## Quick start
 
 Run it without installing anything globally:
@@ -58,16 +60,19 @@ jobs:
   upgrade-guard:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-      - uses: efegokdemir/shopify-upgrade-guard@05221e7582b701b5399b4f27d35ed92257f5ef0c # v0.2.1
+      - uses: efegokdemir/shopify-upgrade-guard@v0.2.3 # current patch release; resolve to a SHA below
         with:
           target: 2026-10
           fail-on: warning
           fail-on-new: 'true'
 ```
 
-For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-upgrade-guard@v0.2`. For high-assurance production workflows, pin the full reviewed commit SHA shown above; minor aliases are not immutable.
+For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-upgrade-guard@v0.2`. For high-assurance production workflows, resolve the current patch release to a reviewed full commit SHA; minor aliases are not immutable.
 
 ### Action inputs
 
@@ -86,7 +91,7 @@ The Action is bundled and runs on the current GitHub `node24` JavaScript Action 
 
 ## What it catches today
 
-The rule pack is intentionally small and high-precision.
+The rule pack is intentionally focused. Existing lexical checks report review signals; the `automaticDiscounts` removal check parses literal GraphQL root selections.
 
 | Rule | Detects | Evidence |
 | --- | --- | --- |
@@ -98,7 +103,8 @@ The rule pack is intentionally small and high-precision.
 | `UG-CUSTOMER-001` | Customer Account checkout removals relevant to 2026-10 | [Shopify changelog](https://shopify.dev/changelog/customer-account-api-last-incomplete-checkout-and-checkout-types-removed) |
 | `UG-POS-001` | Removed POS `session.currentSession.staffMemberId` usage | [Shopify changelog](https://shopify.dev/changelog/removed-session-currentsession-staffmemberid-from-pos-ui-extensions-2026-10) |
 | `UG-ADMIN-001` | Legacy Admin GraphQL `priceRule` usage | [2026-10 release notes](https://shopify.dev/release-notes/2026-10) |
-| `UG-SCRIPT-001` | Script Tag create/update usage | [Script Tag deprecation](https://shopify.dev/changelog/online-store-script-tags-deprecation) |
+| `UG-ADMIN-002` | Literal GraphQL root `automaticDiscounts` removed in 2027-01 | [Official removal](https://shopify.dev/changelog/posts/automaticdiscounts-query-is-removed-in-api-version-2027-01) |
+| `UG-SCRIPT-001` | Cross-version Script Tag write restrictions; REST resource references require method review | [Script Tag deprecation](https://shopify.dev/changelog/online-store-script-tags-deprecation) |
 
 Supported inventory surfaces include Admin REST, Admin GraphQL, Checkout UI extensions, Customer Account UI extensions, POS UI extensions, Functions, Shopify app TOML, and recognized Shopify client configuration.
 
@@ -125,7 +131,7 @@ npx shopify-upgrade-guard scan --target 2026-10 --format json
 npx shopify-upgrade-guard scan --target 2026-10 --format sarif
 
 # Fail only when the PR introduces new warning-or-higher findings
-npx shopify-upgrade-guard scan --target 2026-10 --fail-on warning --fail-on-new
+npx shopify-upgrade-guard scan --target 2026-10 --fail-on warning --fail-on-new --base-ref origin/main
 ```
 
 Exit codes: `0` means the scan completed and policy passed; `1` means active findings exceeded the configured policy; `2` means the scanner could not complete.
@@ -140,6 +146,10 @@ npx shopify-upgrade-guard baseline check
 ```
 
 Baselined findings remain reviewable while new fingerprints stay actionable.
+
+`--fail-on-new` requires a valid Git base comparison. Fetch full history and provide `--base-ref`, or use the pull-request Action. Missing refs/history exit 2 instead of passing an incomplete comparison.
+
+The bundled snapshot, verified 4 October 2026, lists `2026-10` as latest stable and `2027-01` as release candidate. The RC is for testing. Shopify lists `2025-10` as unsupported while its accessibility table runs until 16 October 2026; support status and accessibility are distinct. Future version names do not imply verified rule coverage.
 
 ## Configuration
 
@@ -182,7 +192,7 @@ Building or maintaining Shopify apps?
 
 GitHub Marketplace: [Shopify Upgrade Guard](https://github.com/marketplace/actions/shopify-upgrade-guard)
 
-Both tools are offline, open-source, and require no Shopify credentials.
+All four tools run offline and require no Shopify credentials.
 
 ## Contributing
 
@@ -207,3 +217,13 @@ See [ROADMAP.md](ROADMAP.md).
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Immutable SHA usage
+
+Resolve the release commit, review it, and replace `@v0.2.3` in the Action example with that full SHA:
+
+```bash
+gh api repos/efegokdemir/shopify-upgrade-guard/git/ref/tags/v0.2.3 --jq .object.sha
+```
+
+Published patch tags are retained; existing minor aliases are movable. A reviewed full commit SHA is the immutable execution reference.

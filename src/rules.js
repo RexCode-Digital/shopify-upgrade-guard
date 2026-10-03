@@ -1,5 +1,7 @@
 import { isAtOrAfter, statusFor, latestStable, becomesUnsupportedBefore } from './versions.js';
 
+import { rootFieldMatches } from './graphql.js';
+
 const checkoutDeprecation = '2026-07';
 const removalVersion = '2026-10';
 const sourceExtensions = /\.(?:[jt]sx?|graphql|gql)$/;
@@ -42,8 +44,16 @@ export const rules = [
   {
     id: 'UG-SCRIPT-001', surface: 'online_store_script_tags', severity: 'error', title: 'Script Tag creation and updates are deprecated', deprecatedIn: removalVersion, confidence: 'high',
     documentationUrl: 'https://shopify.dev/changelog/online-store-script-tags-deprecation', migrationUrl: 'https://shopify.dev/docs/apps/build/online-store/script-tag-deprecation',
-    description: 'ScriptTag create/update operations error from 2026-10 and storefront injection stops in 2027-03. Migrate to a theme app extension/app embed block or web pixel.',
+    description: 'ScriptTag create/update operations are restricted on all API versions from October 1, 2026 and storefront injection stops on March 1, 2027. Migrate to a theme app extension/app embed block or web pixel.',
     detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return matches(maskComments(file.text), /\b(?:scriptTagCreate|scriptTagUpdate|script_tags)\b/g, 'Migrate Script Tag injection to a theme app extension/app embed block or web pixel.'); },
+    evaluate(match) { return { ...match, classification: 'current', reason: this.description, ...(match.snippet === 'script_tags' ? { severity: 'warning', confidence: 'medium', title: 'Script Tag REST usage requires migration review', reason: 'Script Tag POST/PUT are restricted across all API versions; reads and deletes remain available. Review the HTTP method and plan storefront injection migration.' } : {}) }; }
+  },
+  {
+    id: 'UG-ADMIN-002', surface: 'admin_graphql_api', severity: 'error', title: 'automaticDiscounts query is removed', removedIn: '2027-01', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/posts/automaticdiscounts-query-is-removed-in-api-version-2027-01',
+    migrationUrl: 'https://shopify.dev/docs/api/admin-graphql/2027-01/queries/discountNodes',
+    description: 'The Admin GraphQL QueryRoot.automaticDiscounts field is removed in 2027-01. Migrate to discountNodes with a method:automatic filter.',
+    detect(file) { return rootFieldMatches(file, 'automaticDiscounts', 'Use discountNodes(first: ..., query: "method:automatic") and move discount fragments under DiscountNode.discount.'); },
     evaluate(match, context) { return removalAware(match, this, context); }
   },
   {
