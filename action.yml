@@ -16,6 +16,9 @@ inputs:
     description: Apply fail-on only to findings introduced by the pull request
     required: false
     default: 'false'
+  base-ref:
+    description: Git base reference for new-only comparison; defaults to origin/PR-base on pull requests
+    required: false
   path:
     description: Repository path to scan
     required: false

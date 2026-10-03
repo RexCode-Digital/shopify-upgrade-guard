@@ -227,3 +227,5 @@ gh api repos/efegokdemir/shopify-upgrade-guard/git/ref/tags/v0.2.3 --jq .object.
 ```
 
 Published patch tags are retained; existing minor aliases are movable. A reviewed full commit SHA is the immutable execution reference.
+
+The Action `base-ref` input selects an explicit Git comparison base. With `fail-on-new: true`, pull-request events default to `origin/<base branch>`; other events must supply `base-ref`. Ordinary scans do not infer a comparison from GitHub environment variables.
