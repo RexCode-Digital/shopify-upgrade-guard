@@ -50,3 +50,10 @@ test('ordinary scans do not implicitly compare GitHub PR environment refs',async
  try{const result=await scan(root);assert.equal(result.comparisonAvailable,false);}
  finally{if(previous===undefined)delete process.env.GITHUB_BASE_REF;else process.env.GITHUB_BASE_REF=previous;}
 });
+
+test('GraphQL removal rules ignore unrelated identifiers and resolve literal fields/types',async t=>{
+ const root=fixture(t);fs.writeFileSync(path.join(root,'app.js'),'const priceRule = {}; const lastIncompleteCheckout = null; const Checkout = {}; // priceRule');
+ assert.ok(!(await scan(root)).findings.some(f=>['UG-ADMIN-001','UG-CUSTOMER-001'].includes(f.ruleId)));
+ fs.writeFileSync(path.join(root,'app.graphql'),'query { customer { alias: lastIncompleteCheckout { ... on Checkout { id } } } }\nfragment Warning on DraftOrderDiscountNotAppliedWarning { priceRule { id } }');
+ const ids=(await scan(root)).findings.map(f=>f.ruleId);assert.ok(ids.includes('UG-ADMIN-001'));assert.ok(ids.includes('UG-CUSTOMER-001'));
+});

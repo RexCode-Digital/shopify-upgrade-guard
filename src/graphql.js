@@ -1,4 +1,4 @@
-import { parse, Kind } from 'graphql';
+import { parse, Kind, visit } from 'graphql';
 // Parse only literal GraphQL documents. Dynamic templates remain unsupported.
 export function rootFieldMatches(file, name, guidance) {
   const documents = [];
@@ -28,5 +28,25 @@ export function rootFieldMatches(file, name, guidance) {
       for (const operation of ast.definitions.filter(d=>d.kind===Kind.OPERATION_DEFINITION && d.operation === 'query')) visitRoot(operation.selectionSet.selections);
     } catch { /* Unsupported or malformed documents are not evidence of this removal. */ }
   }
+  return matches;
+}
+
+// Existing field/type removals require a parseable literal document too.
+export function fieldMatches(file, fields, types, guidance) {
+  const documents = [];
+  if (/\.(graphql|gql)$/.test(file.relativePath)) documents.push({ text: file.text, offset: 0 });
+  else for (const match of file.text.matchAll(/([`"'])([\s\S]*?)\1/g)) {
+    if (!match[2].includes('${') && /(?:\bquery\b|\bmutation\b|#graphql|^\s*\{)/.test(match[2])) documents.push({ text: match[2], offset: match.index + 1 });
+  }
+  const matches = [];
+  for (const doc of documents) try {
+    const ast = parse(doc.text, { maxTokens: 50000 });
+    visit(ast, { enter(node) {
+      const name = node.kind === Kind.FIELD && fields.includes(node.name.value) ? node.name : ([Kind.INLINE_FRAGMENT, Kind.FRAGMENT_DEFINITION].includes(node.kind) && types.includes(node.typeCondition?.name.value) ? node.typeCondition.name : null);
+      if (!name) return;
+      const index = doc.offset + name.loc.start, before = file.text.slice(0,index);
+      matches.push({ file: file.relativePath, line: before.split('\n').length, column: index - before.lastIndexOf('\n'), snippet: name.value, guidance });
+    } });
+  } catch { /* Malformed/dynamic documents cannot establish schema usage. */ }
   return matches;
 }

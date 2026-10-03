@@ -1,6 +1,6 @@
 import { isAtOrAfter, statusFor, latestStable, becomesUnsupportedBefore } from './versions.js';
 
-import { rootFieldMatches } from './graphql.js';
+import { rootFieldMatches, fieldMatches } from './graphql.js';
 
 const checkoutDeprecation = '2026-07';
 const removalVersion = '2026-10';
@@ -24,7 +24,7 @@ export const rules = [
     id: 'UG-CUSTOMER-001', surface: 'customer_account_api', severity: 'error', title: 'Customer Account checkout types are removed', removedIn: removalVersion, confidence: 'high',
     documentationUrl: 'https://shopify.dev/changelog/customer-account-api-last-incomplete-checkout-and-checkout-types-removed', migrationUrl: 'https://shopify.dev/changelog/customer-account-api-last-incomplete-checkout-and-checkout-types-removed',
     description: 'Customer.lastIncompleteCheckout and the Checkout type subtree are removed in API version 2026-10 with no replacement. Use Storefront cart flows or Customer.orders as appropriate.',
-    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return matches(maskComments(file.text), /\blastIncompleteCheckout\b|\bCheckout\s*\{/g, 'Remove the Customer Account checkout field/type usage and migrate to Storefront cart flows or Customer.orders.'); },
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return fieldMatches(file, ['lastIncompleteCheckout'], ['Checkout'], 'Remove the Customer Account checkout field/type usage and migrate to Storefront cart flows or Customer.orders.'); },
     evaluate(match, context) { return removalAware(match, this, context); }
   },
   {
@@ -36,9 +36,9 @@ export const rules = [
   },
   {
     id: 'UG-ADMIN-001', surface: 'admin_graphql_api', severity: 'warning', title: 'Legacy GraphQL priceRule field is removed', removedIn: removalVersion, confidence: 'medium',
-    documentationUrl: 'https://shopify.dev/release-notes/2026-10', migrationUrl: 'https://shopify.dev/release-notes/2026-10',
+    documentationUrl: 'https://shopify.dev/changelog/release-notes/2026-10', migrationUrl: 'https://shopify.dev/changelog/release-notes/2026-10',
     description: 'Legacy priceRule fields and types are removed from the Admin GraphQL API in 2026-10. Use discountTitle or discountCode where applicable.',
-    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return matches(maskComments(file.text), /\bpriceRule\b/g, 'Replace priceRule usage with the supported discountTitle or discountCode fields.'); },
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return fieldMatches(file, ['priceRule'], ['PriceRule'], 'For DraftOrderDiscountNotAppliedWarning, select discountTitle and discountCode instead; review other legacy PriceRule selections against the removed public types.'); },
     evaluate(match, context) { return removalAware(match, this, context); }
   },
   {
