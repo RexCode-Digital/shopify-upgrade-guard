@@ -1,6 +1,6 @@
 name: Shopify Upgrade Guard
 description: Detect documented Shopify API and platform upgrade risks in your repository
-author: Efegokdemir
+author: RexCode Digital Ltd (Efe Gökdemir)
 branding:
   icon: shield
   color: purple

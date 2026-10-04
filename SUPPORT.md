@@ -5,7 +5,7 @@ Shopify Upgrade Guard is open-source developer tooling. The fastest way to get h
 ## Questions and usage
 
 - Check the [README](README.md) and [documentation](docs/).
-- Search [existing issues](https://github.com/efegokdemir/shopify-upgrade-guard/issues) before opening a new one.
+- Search [existing issues](https://github.com/RexCode-Digital/shopify-upgrade-guard/issues) before opening a new one.
 - Use a focused issue with a minimal, sanitized reproduction when reporting a bug or requesting a Shopify rule.
 
 ## Shopify rule requests

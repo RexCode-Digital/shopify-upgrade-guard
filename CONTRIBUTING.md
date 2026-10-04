@@ -14,7 +14,7 @@ The project deliberately prefers **high-confidence, evidence-backed checks** ove
 - Scanner safety and cross-platform fixtures
 - Documentation and reproducible examples
 
-Browse the [open issues](https://github.com/efegokdemir/shopify-upgrade-guard/issues) for current work.
+Browse the [open issues](https://github.com/RexCode-Digital/shopify-upgrade-guard/issues) for current work.
 
 ## Rule requirements
 
