@@ -1,6 +1,6 @@
 {
   "name": "shopify-upgrade-guard",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Offline static analysis for Shopify platform and API upgrade risks.",
   "type": "module",
   "bin": {

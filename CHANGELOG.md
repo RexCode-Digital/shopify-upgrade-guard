@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.4
+
+- Refresh published npm metadata to the canonical RexCode-Digital repository and issue tracker.
+- Preserve the existing package name, license, author attribution, and runtime behavior.
+
 ## 0.2.3
 
 - Correct ScriptTag write restrictions across API targets and add the documented automaticDiscounts removal in 2027-01.
