@@ -4,9 +4,9 @@
 
 [![npm](https://img.shields.io/npm/v/shopify-upgrade-guard?logo=npm)](https://www.npmjs.com/package/shopify-upgrade-guard)
 [![npm downloads](https://img.shields.io/npm/dm/shopify-upgrade-guard?logo=npm)](https://www.npmjs.com/package/shopify-upgrade-guard)
-[![CI](https://github.com/efegokdemir/shopify-upgrade-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/efegokdemir/shopify-upgrade-guard/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/efegokdemir/shopify-upgrade-guard/actions/workflows/codeql.yml/badge.svg)](https://github.com/efegokdemir/shopify-upgrade-guard/actions/workflows/codeql.yml)
-[![license](https://img.shields.io/github/license/efegokdemir/shopify-upgrade-guard)](LICENSE)
+[![CI](https://github.com/RexCode-Digital/shopify-upgrade-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/RexCode-Digital/shopify-upgrade-guard/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/RexCode-Digital/shopify-upgrade-guard/actions/workflows/codeql.yml/badge.svg)](https://github.com/RexCode-Digital/shopify-upgrade-guard/actions/workflows/codeql.yml)
+[![license](https://img.shields.io/github/license/RexCode-Digital/shopify-upgrade-guard)](LICENSE)
 
 Shopify Upgrade Guard is an offline, evidence-backed CLI and GitHub Action for Shopify developers. It scans a repository for documented upgrade and deprecation risks, evaluates them against a target Shopify API version, and gives you migration guidance backed by official Shopify sources.
 
@@ -14,7 +14,9 @@ Shopify Upgrade Guard is an offline, evidence-backed CLI and GitHub Action for S
 
 > Unofficial open-source developer tooling. Not affiliated with, endorsed by, or certified by Shopify.
 
-Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. [Releases](https://github.com/efegokdemir/shopify-upgrade-guard/releases) · [npm](https://www.npmjs.com/package/shopify-upgrade-guard) · [Marketplace](https://github.com/marketplace/actions/shopify-upgrade-guard)
+Maintained by RexCode Digital Ltd.
+
+Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. [Releases](https://github.com/RexCode-Digital/shopify-upgrade-guard/releases) · [npm](https://www.npmjs.com/package/shopify-upgrade-guard) · [Marketplace](https://github.com/marketplace/actions/shopify-upgrade-guard)
 
 ## Quick start
 
@@ -65,14 +67,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: efegokdemir/shopify-upgrade-guard@4e288cbc58a3186a7304785615f7255c0e3d0155 # v0.2.3
+      - uses: RexCode-Digital/shopify-upgrade-guard@4e288cbc58a3186a7304785615f7255c0e3d0155 # v0.2.3
         with:
           target: 2026-10
           fail-on: warning
           fail-on-new: 'true'
 ```
 
-For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-upgrade-guard@v0.2`. For high-assurance production workflows, resolve the current patch release to a reviewed full commit SHA; minor aliases are not immutable.
+Use the immutable patch release tag or a reviewed full commit SHA. Existing minor aliases are retained for compatibility and are not moved by future releases.
 
 ### Action inputs
 
@@ -187,9 +189,9 @@ See [SECURITY.md](SECURITY.md) and the [threat model](docs/threat-model.md).
 
 Building or maintaining Shopify apps?
 
-- **[ChangeGuard](https://github.com/efegokdemir/shopify-app-changeguard)** — Review meaningful `shopify.app*.toml` configuration changes before they reach production.
-- **[Shopify Scope Guard](https://github.com/efegokdemir/shopify-scope-guard)** — Audit whether declared Shopify permissions are supported by offline code evidence.
-- **[Shopify App Review Guard](https://github.com/efegokdemir/shopify-app-review-guard)** — Run deterministic preflight checks for Shopify App Store and production readiness.
+- **[ChangeGuard](https://github.com/RexCode-Digital/shopify-app-changeguard)** — Review meaningful `shopify.app*.toml` configuration changes before they reach production.
+- **[Shopify Scope Guard](https://github.com/RexCode-Digital/shopify-scope-guard)** — Audit whether declared Shopify permissions are supported by offline code evidence.
+- **[Shopify App Review Guard](https://github.com/RexCode-Digital/shopify-app-review-guard)** — Run deterministic preflight checks for Shopify App Store and production readiness.
 
 GitHub Marketplace: [Shopify Upgrade Guard](https://github.com/marketplace/actions/shopify-upgrade-guard)
 
@@ -207,7 +209,7 @@ A Shopify-specific rule should include:
 4. migration guidance
 5. positive and false-positive tests
 
-Start with [the contribution guide](CONTRIBUTING.md) or browse the [open issues](https://github.com/efegokdemir/shopify-upgrade-guard/issues).
+Start with [the contribution guide](CONTRIBUTING.md) or browse the [open issues](https://github.com/RexCode-Digital/shopify-upgrade-guard/issues).
 
 ## Roadmap
 
@@ -224,9 +226,9 @@ MIT — see [LICENSE](LICENSE).
 The Action example pins the reviewed v0.2.3 release commit. Verify the release reference with:
 
 ```bash
-gh api repos/efegokdemir/shopify-upgrade-guard/git/ref/tags/v0.2.3 --jq .object.sha
+gh api repos/RexCode-Digital/shopify-upgrade-guard/git/ref/tags/v0.2.3 --jq .object.sha
 ```
 
-Published patch tags are retained; existing minor aliases are movable. A reviewed full commit SHA is the immutable execution reference.
+Published patch tags and existing minor aliases are retained. Future releases do not move minor aliases; use an immutable patch tag or a reviewed full commit SHA.
 
 The Action `base-ref` input selects an explicit Git comparison base. With `fail-on-new: true`, pull-request events default to `origin/<base branch>`; other events must supply `base-ref`. Ordinary scans do not infer a comparison from GitHub environment variables.
