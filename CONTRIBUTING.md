@@ -2,6 +2,10 @@
 
 Thanks for helping improve Shopify Upgrade Guard.
 
+## Contribution terms
+
+You retain copyright in your contributions. By submitting a contribution, you agree that it is provided under the same MIT licence that applies to this project. You confirm that you have the right to submit the contribution. Disclose any third-party code or assets and identify their applicable licences before including them.
+
 The project deliberately prefers **high-confidence, evidence-backed checks** over a large noisy rule catalogue. A false-positive-heavy upgrade scanner is worse than a smaller one developers can trust.
 
 ## Good contribution areas
