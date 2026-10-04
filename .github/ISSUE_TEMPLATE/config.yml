@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Security reports
-    url: https://github.com/RexCode-Digital/shopify-upgrade-guard/blob/main/SECURITY.md
-    about: Please report suspected vulnerabilities privately instead of opening a public issue.
+  - name: Report a security vulnerability privately
+    url: https://github.com/RexCode-Digital/shopify-upgrade-guard/security/advisories/new
+    about: Do not report suspected vulnerabilities or include secrets in a public issue.
+  - name: Support and usage questions
+    url: https://github.com/RexCode-Digital/shopify-upgrade-guard/blob/main/SUPPORT.md
+    about: Review the support guide before opening a usage question.
