@@ -1,5 +1,5 @@
 name: Shopify Upgrade Guard
-description: Detect documented Shopify API and platform upgrade risks in your repository
+description: Find documented Shopify API and platform upgrade compatibility risks in CI against a target version.
 author: RexCode Digital Ltd (Efe Gökdemir)
 branding:
   icon: shield

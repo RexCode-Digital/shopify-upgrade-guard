@@ -1,7 +1,7 @@
 {
   "name": "shopify-upgrade-guard",
-  "version": "0.2.4",
-  "description": "Offline static analysis for Shopify platform and API upgrade risks.",
+  "version": "0.2.5",
+  "description": "Check documented Shopify API and platform upgrade compatibility risks with an offline CLI and GitHub Action.",
   "type": "module",
   "bin": {
     "shopify-upgrade-guard": "src/cli.js",
@@ -40,11 +40,13 @@
   },
   "keywords": [
     "shopify",
+    "shopify-app",
     "shopify-api",
-    "github-actions",
-    "developer-tools",
+    "upgrade",
     "migration",
-    "deprecation"
+    "compatibility",
+    "github-actions",
+    "ci"
   ],
   "publishConfig": {
     "provenance": true
