@@ -4,8 +4,10 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 const bundle=fs.readFileSync('dist/index.js');
+const licenses=fs.readFileSync('dist/licenses.txt');
 const npm=process.platform==='win32'?'npm.cmd':'npm';
 const build=spawnSync(npm,['run','build:action'],{stdio:'inherit',shell:process.platform==='win32'});assert.equal(build.status,0);assert.deepEqual(fs.readFileSync('dist/index.js'),bundle,'Committed Action bundle is stale');
+assert.deepEqual(fs.readFileSync('dist/licenses.txt'),licenses,'Committed Action licence inventory is stale');
 const root=fs.mkdtempSync(path.join(os.tmpdir(),'guard-action-'));
 try {
  fs.writeFileSync(path.join(root,'shopify.app.toml'),'application_url="https://example.test"\n[access_scopes]\nscopes=""\n');
