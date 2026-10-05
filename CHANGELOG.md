@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.5
+
+- Refine npm search metadata and the Action description for target-aware Shopify API upgrade checks.
+
 ## 0.2.4
 
 - Refresh published npm metadata to the canonical RexCode-Digital repository and issue tracker.
