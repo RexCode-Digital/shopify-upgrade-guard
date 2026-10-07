@@ -67,7 +67,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: RexCode-Digital/shopify-upgrade-guard@223ec33e119f920ecc9f9a5df722a2f6fda0df40 # v0.2.5
+      - uses: RexCode-Digital/shopify-upgrade-guard@b0a6816f95d783f703bf031c9920004fbb865bc1 # v0.2.6
         with:
           target: 2026-10
           fail-on: warning
