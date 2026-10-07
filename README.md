@@ -67,7 +67,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: RexCode-Digital/shopify-upgrade-guard@7a261bfb68bb931250e553f22d7c96142490a35a # v0.2.4
+      - uses: RexCode-Digital/shopify-upgrade-guard@223ec33e119f920ecc9f9a5df722a2f6fda0df40 # v0.2.5
         with:
           target: 2026-10
           fail-on: warning
@@ -94,7 +94,7 @@ The Action is bundled and runs on the current GitHub `node24` JavaScript Action 
 
 ## What it catches today
 
-The rule pack is intentionally focused. Existing lexical checks report review signals; the `automaticDiscounts` removal check parses literal GraphQL root selections.
+The rule pack is intentionally focused. Literal GraphQL checks parse supported documents and ignore malformed or dynamic queries; rule-specific context limits findings to Shopify API constructs that can be identified deterministically.
 
 | Rule | Detects | Evidence |
 | --- | --- | --- |
@@ -107,6 +107,10 @@ The rule pack is intentionally focused. Existing lexical checks report review si
 | `UG-POS-001` | Removed POS `session.currentSession.staffMemberId` usage | [Shopify changelog](https://shopify.dev/changelog/removed-session-currentsession-staffmemberid-from-pos-ui-extensions-2026-10) |
 | `UG-ADMIN-001` | Legacy Admin GraphQL `priceRule` usage | [2026-10 release notes](https://shopify.dev/release-notes/2026-10) |
 | `UG-ADMIN-002` | Literal GraphQL root `automaticDiscounts` removed in 2027-01 | [Official removal](https://shopify.dev/changelog/posts/automaticdiscounts-query-is-removed-in-api-version-2027-01) |
+| `UG-ADMIN-003` | GraphQL `metafieldInteger` collection conditions and types removed in 2027-01 | [Official removal](https://shopify.dev/changelog/posts/metafieldinteger-collection-condition-removed-in-api-version-2027-01) |
+| `UG-ADMIN-004` | `ProductVariant.barcode` read deprecated in 2026-10; it still works and no removal date is announced | [Official deprecation](https://shopify.dev/changelog/posts/product-variant-barcode-is-being-replaced-by-barcodes) |
+| `UG-SEGMENT-001` | Legacy function/date syntax inside literal segment GraphQL query arguments | [Official syntax update](https://shopify.dev/changelog/posts/updated-function-syntax-on-the-segment-query-language) |
+| `UG-ADMIN-005` | Source handling for removed inventory error `ITEM_NOT_STOCKED_AT_LOCATION` | [Official removal](https://shopify.dev/changelog/posts/removal-of-itemnotstockedatlocation-error) |
 | `UG-SCRIPT-001` | Cross-version Script Tag write restrictions; REST resource references require method review | [Script Tag deprecation](https://shopify.dev/changelog/online-store-script-tags-deprecation) |
 
 Supported inventory surfaces include Admin REST, Admin GraphQL, Checkout UI extensions, Customer Account UI extensions, POS UI extensions, Functions, Shopify app TOML, and recognized Shopify client configuration.
@@ -226,7 +230,7 @@ MIT — see [LICENSE](LICENSE).
 The Action example pins the reviewed v0.2.3 release commit. Verify the release reference with:
 
 ```bash
-gh api repos/RexCode-Digital/shopify-upgrade-guard/git/ref/tags/v0.2.3 --jq .object.sha
+gh api repos/RexCode-Digital/shopify-upgrade-guard/git/ref/tags/v0.2.5 --jq .object.sha
 ```
 
 Published patch tags and existing minor aliases are retained. Future releases do not move minor aliases; use an immutable patch tag or a reviewed full commit SHA.

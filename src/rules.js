@@ -1,6 +1,6 @@
 import { isAtOrAfter, statusFor, latestStable, becomesUnsupportedBefore } from './versions.js';
 
-import { rootFieldMatches, fieldMatches } from './graphql.js';
+import { rootFieldMatches, fieldMatches, productVariantBarcodeMatches, segmentQueryMatches } from './graphql.js';
 
 const checkoutDeprecation = '2026-07';
 const removalVersion = '2026-10';
@@ -57,6 +57,34 @@ export const rules = [
     evaluate(match, context) { return removalAware(match, this, context); }
   },
   {
+    id: 'UG-ADMIN-003', surface: 'admin_graphql_api', severity: 'error', title: 'Integer metafield collection condition is removed', removedIn: '2027-01', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/posts/metafieldinteger-collection-condition-removed-in-api-version-2027-01', migrationUrl: 'https://shopify.dev/docs/api/admin-graphql/2027-01/input-objects/CollectionSourceInclusionConditionInput',
+    description: 'Admin GraphQL collection condition fields and types named metafieldInteger are removed in API version 2027-01. Migrate to metafieldInt and send integer condition values as strings.',
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return fieldMatches(file, ['metafieldInteger'], ['CollectionSourceInclusionConditionMetafieldInteger', 'CollectionSourceInclusionConditionMetafieldIntegerRelation'], 'Replace metafieldInteger with metafieldInt and serialize the integer condition value as a string.'); },
+    evaluate(match, context) { return removalAware(match, this, context); }
+  },
+  {
+    id: 'UG-ADMIN-004', surface: 'admin_graphql_api', severity: 'warning', title: 'ProductVariant.barcode is deprecated', deprecatedIn: '2026-10', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/posts/product-variant-barcode-is-being-replaced-by-barcodes', migrationUrl: 'https://shopify.dev/docs/api/admin-graphql/2026-10/objects/ProductVariant',
+    description: 'ProductVariant.barcode is deprecated from API version 2026-10 and returns only the first entry after a variant has multiple barcodes. Migrate reads to the barcodes connection when every identifier matters; Shopify has not announced a removal date.',
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return productVariantBarcodeMatches(file, 'Review this ProductVariant.barcode read. Use the barcodes connection if the integration must handle every barcode.'); },
+    evaluate(match, context) { return deprecationAware(match, this, context); }
+  },
+  {
+    id: 'UG-SEGMENT-001', surface: 'admin_graphql_api', severity: 'warning', title: 'Legacy segment query syntax is deprecated', deprecatedIn: '2026-10', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/posts/updated-function-syntax-on-the-segment-query-language', migrationUrl: 'https://shopify.dev/docs/apps/build/shopifyql/segment-query-language-reference',
+    description: 'In API version 2026-10, segment functions use MATCHES or NOT MATCHES instead of = true or = false; named date tokens 12_months_ago, 90_days_ago, 30_days_ago, and 7_days_ago are deprecated. Migrate to the documented operators and date offsets.',
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return segmentQueryMatches(file, 'Update this literal Shopify segment query to MATCHES/NOT MATCHES and replace deprecated named dates with supported date offsets.'); },
+    evaluate(match, context) { return deprecationAware(match, this, context); }
+  },
+  {
+    id: 'UG-ADMIN-005', surface: 'admin_graphql_api', severity: 'error', title: 'ITEM_NOT_STOCKED_AT_LOCATION handling is obsolete', removedIn: '2026-10', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/posts/removal-of-itemnotstockedatlocation-error', migrationUrl: 'https://shopify.dev/changelog/posts/removal-of-itemnotstockedatlocation-error',
+    description: 'Shopify removed ITEM_NOT_STOCKED_AT_LOCATION from the relevant inventory mutation error codes in API version 2026-10. Remove logic that depends on this specific error; inventory quantities can now be adjusted at any location.',
+    detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return matches(maskComments(file.text), /(?:(?:===|!==|==|!=)\s*(['"])ITEM_NOT_STOCKED_AT_LOCATION\1|\bcase\s+(['"]?)ITEM_NOT_STOCKED_AT_LOCATION\2|\b[A-Z][A-Za-z0-9_]*\.ITEM_NOT_STOCKED_AT_LOCATION\b)/g, 'Remove handling for ITEM_NOT_STOCKED_AT_LOCATION; Shopify no longer emits this error code from API version 2026-10.'); },
+    evaluate(match, context) { return removalAware(match, this, context); }
+  },
+  {
     id: 'UG-REST-001', surface: 'admin_rest_api', severity: 'warning', title: 'REST Admin API usage is legacy', confidence: 'high',
     documentationUrl: 'https://shopify.dev/docs/api/admin-rest', migrationUrl: 'https://shopify.dev/docs/api/admin-graphql',
     description: 'The REST Admin API is legacy. New public apps must use the GraphQL Admin API; existing integrations should plan migration where applicable.',
@@ -88,6 +116,10 @@ function versionAware(match, rule, context) {
 function removalAware(match, rule, context) {
   if (!isAtOrAfter(context.targetVersion, rule.removedIn ?? rule.deprecatedIn)) return null;
   return { ...match, classification: 'target', reason: `This usage is affected by target ${context.targetVersion}. ${rule.description}` };
+}
+function deprecationAware(match, rule, context) {
+  if (!isAtOrAfter(context.targetVersion, rule.deprecatedIn)) return null;
+  return { ...match, classification: 'target', reason: `This usage is deprecated for target ${context.targetVersion}. ${rule.description}` };
 }
 function matches(text, pattern, guidance) { return [...text.matchAll(pattern)].map((match) => { const before = text.slice(0, match.index); return { file: null, line: before.split('\n').length, column: match.index - before.lastIndexOf('\n'), snippet: match[0], guidance }; }); }
 export function attachFile(matchesForFile, file) { return matchesForFile.map((match) => ({ ...match, file: file.relativePath })); }
