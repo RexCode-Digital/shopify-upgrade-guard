@@ -1,6 +1,6 @@
 {
   "name": "shopify-upgrade-guard",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Check documented Shopify API and platform upgrade compatibility risks with an offline CLI and GitHub Action.",
   "type": "module",
   "bin": {

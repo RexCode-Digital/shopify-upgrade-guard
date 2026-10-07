@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.6
+
+- Add bounded target-aware checks for the 2026-10 ProductVariant barcode deprecation, segment query syntax changes, and inventory error removal, plus 2027-01 metafieldInteger removal.
+
 ## 0.2.5
 
 - Refine npm search metadata and the Action description for target-aware Shopify API upgrade checks.
