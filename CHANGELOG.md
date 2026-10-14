@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.0
+
 - Pin all CodeQL steps to the same immutable v4.38.3 commit to prevent mismatched init and analyze versions.
 - Add target-aware checks for the removed 2027-01 market currency mutation and deprecated metaobject admin access input values.
 - Compare findings from independent base and head trees, preserving rename status and reporting resolved findings.
