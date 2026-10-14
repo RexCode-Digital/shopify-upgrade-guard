@@ -62,6 +62,8 @@ Keep PRs focused. Explain:
 
 AI-assisted contributions are welcome, but the human submitter must review and understand the change.
 
+These repositories use a solo-maintainer review model. Keep changes in pull requests and merge only after the required automated checks pass. CODEOWNERS may route review requests, but human approval is not a merge requirement.
+
 ## Security
 
 Do not report vulnerabilities or sensitive merchant/repository data in public issues. Follow [SECURITY.md](SECURITY.md).
