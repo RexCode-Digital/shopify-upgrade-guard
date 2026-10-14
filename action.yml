@@ -29,6 +29,8 @@ runs:
 outputs:
   new-finding-count:
     description: Number of findings classified as NEW
+  resolved-finding-count:
+    description: Number of findings resolved against the Git base tree
   outcome:
     description: Whether the configured failure policy passed
   finding-count:

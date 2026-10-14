@@ -6,8 +6,8 @@ export function formatHuman(result) {
   lines.push(...sectionLines(result.currentProblems.filter((finding) => !finding.baselined), 'Current debt'));
   lines.push('', 'Upgrade blockers');
   lines.push(...sectionLines(result.upgradeBlockers.filter((finding) => !finding.baselined), 'Target migration')); 
-  const introduced = active.filter((finding) => finding.changeStatus === 'introduced'); const existing = active.filter((finding) => finding.changeStatus === 'pre-existing');
-  if (introduced.length || existing.length) lines.push('', `Introduced by this PR: ${introduced.length}`, `Pre-existing: ${existing.length}`);
+  const introduced = active.filter((finding) => finding.changeStatus === 'introduced'); const existing = active.filter((finding) => finding.changeStatus === 'pre-existing'); const resolved = result.resolvedFindings ?? [];
+  if (result.comparisonAvailable) lines.push('', `Introduced by this PR: ${introduced.length}`, `Pre-existing: ${existing.length}`, `Resolved by this PR: ${resolved.length}`);
   if (!active.length) lines.push('No upgrade risks found.', '', 'Result: scan passed'); else lines.push('', `${active.length} active risk${active.length === 1 ? '' : 's'} found`, `Baselined: ${result.baselinedCount}`, '', 'Result: migration recommended');
   return lines.join('\n');
 }

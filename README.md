@@ -16,7 +16,7 @@ Shopify Upgrade Guard is an offline, evidence-backed CLI and GitHub Action for S
 
 Maintained by RexCode Digital Ltd.
 
-Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. [Releases](https://github.com/RexCode-Digital/shopify-upgrade-guard/releases) · [npm](https://www.npmjs.com/package/shopify-upgrade-guard) · [Marketplace](https://github.com/marketplace/actions/shopify-upgrade-guard)
+Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. The parser remains on GraphQL 16 because GraphQL 17.0.2 requires Node.js 22 or later, which would drop the supported Node.js 20 runtime. [Releases](https://github.com/RexCode-Digital/shopify-upgrade-guard/releases) · [npm](https://www.npmjs.com/package/shopify-upgrade-guard) · [Marketplace](https://github.com/marketplace/actions/shopify-upgrade-guard)
 
 ## Quick start
 
@@ -39,7 +39,7 @@ Upgrade Guard separates **current debt** from **target-version blockers**, so te
 
 - **Target-aware** — evaluate findings against the Shopify version you actually plan to adopt.
 - **Evidence-backed** — Shopify-specific rules link to official Shopify documentation or changelog evidence.
-- **PR-aware** — distinguish newly introduced findings from pre-existing debt.
+- **PR-aware** — compare independent base and head tree scans, including renamed files, to distinguish new, existing, and resolved findings.
 - **Baseline-friendly** — adopt the tool without forcing a big-bang cleanup of historical findings.
 - **CI-ready** — human, JSON, and SARIF output plus a GitHub Action.
 - **Offline by default** — ordinary scans require no network access, Shopify token, or store access.
@@ -88,9 +88,11 @@ Use the immutable patch release tag or a reviewed full commit SHA. Existing mino
 
 ### Action outputs
 
-`outcome`, `finding-count`, `new-finding-count`, `error-count`, `current-versions`, and `result-json`.
+`outcome`, `finding-count`, `new-finding-count`, `resolved-finding-count`, `error-count`, `current-versions`, and `result-json`.
 
 The Action is bundled and runs on the current GitHub `node24` JavaScript Action runtime.
+
+The example above pins v0.2.6, which does not expose `resolved-finding-count`. The independent base/head comparison and resolved-finding behaviour described below are part of the unreleased changes here; they are not available from the current npm package or Action.
 
 ## What it catches today
 
@@ -109,6 +111,8 @@ The rule pack is intentionally focused. Literal GraphQL checks parse supported d
 | `UG-ADMIN-002` | Literal GraphQL root `automaticDiscounts` removed in 2027-01 | [Official removal](https://shopify.dev/changelog/posts/automaticdiscounts-query-is-removed-in-api-version-2027-01) |
 | `UG-ADMIN-003` | GraphQL `metafieldInteger` collection conditions and types removed in 2027-01 | [Official removal](https://shopify.dev/changelog/posts/metafieldinteger-collection-condition-removed-in-api-version-2027-01) |
 | `UG-ADMIN-004` | `ProductVariant.barcode` read deprecated in 2026-10; it still works and no removal date is announced | [Official deprecation](https://shopify.dev/changelog/posts/product-variant-barcode-is-being-replaced-by-barcodes) |
+| `UG-ADMIN-006` | Literal `marketCurrencySettingsUpdate` Admin mutation removed in 2027-01 | [Official removal](https://shopify.dev/changelog/posts/removing-marketcurrencysettingsupdate-mutation) |
+| `UG-ADMIN-007` | `PRIVATE` / `PUBLIC_READ` literals passed as metaobject definition admin access removed in 2027-01 | [Official deprecation](https://shopify.dev/changelog/posts/removing-deprecated-private-and-public-read-enums-on-metaobject-definitions) |
 | `UG-SEGMENT-001` | Legacy function/date syntax inside literal segment GraphQL query arguments | [Official syntax update](https://shopify.dev/changelog/posts/updated-function-syntax-on-the-segment-query-language) |
 | `UG-ADMIN-005` | Source handling for removed inventory error `ITEM_NOT_STOCKED_AT_LOCATION` | [Official removal](https://shopify.dev/changelog/posts/removal-of-itemnotstockedatlocation-error) |
 | `UG-SCRIPT-001` | Cross-version Script Tag write restrictions; REST resource references require method review | [Script Tag deprecation](https://shopify.dev/changelog/online-store-script-tags-deprecation) |
@@ -154,9 +158,11 @@ npx shopify-upgrade-guard baseline check
 
 Baselined findings remain reviewable while new fingerprints stay actionable.
 
-`--fail-on-new` requires a valid Git base comparison. Fetch full history and provide `--base-ref`, or use the pull-request Action. Missing refs/history exit 2 instead of passing an incomplete comparison.
+`--fail-on-new` requires a valid Git base comparison. Upgrade Guard scans the base commit and head tree independently, then matches findings by rule, file identity, and evidence; recognized file renames keep existing debt stable. JSON includes `resolvedFindings`, and human output reports their count. Fetch full history and provide `--base-ref`, or use the pull-request Action. Missing refs/history exit 2 instead of passing an incomplete comparison.
 
-The bundled snapshot, verified 4 October 2026, lists `2026-10` as latest stable and `2027-01` as release candidate. The RC is for testing. Shopify lists `2025-10` as unsupported while its accessibility table runs until 16 October 2026; support status and accessibility are distinct. Future version names do not imply verified rule coverage.
+The bundled snapshot, verified 14 October 2026, lists `2026-10` as the latest stable API and `2027-01` as a release candidate for development testing. Version status uses Shopify's exact `accessibleUntil` timestamp: `2025-10` remains accessible until 16 October 2026 at 15:00 UTC, then becomes unsupported. Future version names do not imply verified rule coverage.
+
+The 2027-01 tax payload change converts IDs in tax calculation requests and tax summary webhook payloads to Global IDs. Upgrade Guard cannot reliably tell whether arbitrary runtime parsing assumes numeric IDs, so tax app handlers need review against Shopify's [official migration note](https://shopify.dev/changelog/posts/tax-webhook-summary-and-calculation-requests-now-use-global-ids).
 
 ## Configuration
 
@@ -197,6 +203,8 @@ Building or maintaining Shopify apps?
 - **[Shopify Scope Guard](https://github.com/RexCode-Digital/shopify-scope-guard)** — Audit whether declared Shopify permissions are supported by offline code evidence.
 - **[Shopify App Review Guard](https://github.com/RexCode-Digital/shopify-app-review-guard)** — Run deterministic preflight checks for Shopify App Store and production readiness.
 
+See the [coordinated workflow example](https://github.com/RexCode-Digital/shopify-app-changeguard/blob/main/docs/ecosystem-workflow.md) to run all four published Actions in one pull-request workflow.
+
 GitHub Marketplace: [Shopify Upgrade Guard](https://github.com/marketplace/actions/shopify-upgrade-guard)
 
 All four tools run offline and require no Shopify credentials.
@@ -217,7 +225,7 @@ Start with [the contribution guide](CONTRIBUTING.md) or browse the [open issues]
 
 ## Roadmap
 
-Current priorities include additional verified Shopify breaking-change coverage, better PR base-tree classification, high-confidence Functions/Customer Account/POS/GraphQL rules, and maintainable GraphQL deprecation evidence.
+Current priorities include additional verified Shopify breaking-change coverage, high-confidence Functions/Customer Account/POS/GraphQL rules, and maintainable GraphQL deprecation evidence when Shopify provides a versioned source with clear redistribution rights. See the [metadata decision](docs/graphql-deprecation-metadata.md).
 
 See [ROADMAP.md](ROADMAP.md).
 

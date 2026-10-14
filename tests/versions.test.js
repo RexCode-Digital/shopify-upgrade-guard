@@ -13,7 +13,9 @@ test('compares quarterly versions centrally', () => {
   assert.equal(isAtOrAfter('2026-07', '2026-07'), true);
   assert.throws(() => compareVersions('2026-03', '2026-04'), /invalid Shopify versions/);
 });
-test('distinguishes stable, release candidate, unsupported, and future versions', () => {
+test('distinguishes supported, release candidate, unsupported, and future versions at an explicit time', () => {
+  assert.equal(statusFor('2025-10', new Date('2026-10-14T00:00:00Z')), 'stable');
+  assert.equal(statusFor('2025-10', new Date('2026-10-16T15:00:00Z')), 'unsupported');
   assert.equal(statusFor('2025-07'), 'unsupported');
   assert.equal(statusFor('2026-10'), 'latest-stable');
   assert.equal(statusFor('2027-01'), 'release-candidate');

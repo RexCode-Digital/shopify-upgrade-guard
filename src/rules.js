@@ -1,6 +1,6 @@
 import { isAtOrAfter, statusFor, latestStable, becomesUnsupportedBefore } from './versions.js';
 
-import { rootFieldMatches, fieldMatches, productVariantBarcodeMatches, segmentQueryMatches } from './graphql.js';
+import { rootFieldMatches, fieldMatches, mutationEnumMatches, productVariantBarcodeMatches, segmentQueryMatches } from './graphql.js';
 
 const checkoutDeprecation = '2026-07';
 const removalVersion = '2026-10';
@@ -82,6 +82,20 @@ export const rules = [
     documentationUrl: 'https://shopify.dev/changelog/posts/removal-of-itemnotstockedatlocation-error', migrationUrl: 'https://shopify.dev/changelog/posts/removal-of-itemnotstockedatlocation-error',
     description: 'Shopify removed ITEM_NOT_STOCKED_AT_LOCATION from the relevant inventory mutation error codes in API version 2026-10. Remove logic that depends on this specific error; inventory quantities can now be adjusted at any location.',
     detect(file) { if (!sourceExtensions.test(file.relativePath)) return []; return matches(maskComments(file.text), /(?:(?:===|!==|==|!=)\s*(['"])ITEM_NOT_STOCKED_AT_LOCATION\1|\bcase\s+(['"]?)ITEM_NOT_STOCKED_AT_LOCATION\2|\b[A-Z][A-Za-z0-9_]*\.ITEM_NOT_STOCKED_AT_LOCATION\b)/g, 'Remove handling for ITEM_NOT_STOCKED_AT_LOCATION; Shopify no longer emits this error code from API version 2026-10.'); },
+    evaluate(match, context) { return removalAware(match, this, context); }
+  },
+  {
+    id: 'UG-ADMIN-006', surface: 'admin_graphql_api', severity: 'error', title: 'marketCurrencySettingsUpdate mutation is removed', removedIn: '2027-01', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/posts/removing-marketcurrencysettingsupdate-mutation', migrationUrl: 'https://shopify.dev/docs/api/admin-graphql/2027-01/mutations/marketUpdate',
+    description: 'The Admin GraphQL marketCurrencySettingsUpdate mutation is removed in API version 2027-01. Set currency settings through marketCreate or marketUpdate instead.',
+    detect(file) { return rootFieldMatches(file, 'marketCurrencySettingsUpdate', 'Move currency settings into marketCreate or marketUpdate.', 'mutation'); },
+    evaluate(match, context) { return removalAware(match, this, context); }
+  },
+  {
+    id: 'UG-ADMIN-007', surface: 'admin_graphql_api', severity: 'error', title: 'Metaobject admin access enum value is removed', removedIn: '2027-01', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/posts/removing-deprecated-private-and-public-read-enums-on-metaobject-definitions', migrationUrl: 'https://shopify.dev/docs/api/admin-graphql/2027-01/input-objects/metaobjectaccessinput',
+    description: 'The MetaobjectAdminAccess values PRIVATE and PUBLIC_READ are removed in API version 2027-01. Review the intended access and use a currently supported value.',
+    detect(file) { return mutationEnumMatches(file, ['metaobjectDefinitionCreate', 'metaobjectDefinitionUpdate'], 'definition', ['access', 'admin'], ['PRIVATE', 'PUBLIC_READ'], 'Remove this obsolete access value and choose an intended value supported by the current MetaobjectAdminAccess input.'); },
     evaluate(match, context) { return removalAware(match, this, context); }
   },
   {
