@@ -92,6 +92,8 @@ Use the immutable patch release tag or a reviewed full commit SHA. Existing mino
 
 The Action is bundled and runs on the current GitHub `node24` JavaScript Action runtime.
 
+The example above pins v0.2.6, which does not expose `resolved-finding-count`. The independent base/head comparison and resolved-finding behaviour described below are part of the unreleased changes here; they are not available from the current npm package or Action.
+
 ## What it catches today
 
 The rule pack is intentionally focused. Literal GraphQL checks parse supported documents and ignore malformed or dynamic queries; rule-specific context limits findings to Shopify API constructs that can be identified deterministically.
