@@ -1,6 +1,6 @@
 import { parse, Kind, visit } from 'graphql';
 // Parse only literal GraphQL documents. Dynamic templates remain unsupported.
-export function rootFieldMatches(file, name, guidance) {
+export function rootFieldMatches(file, name, guidance, operation = 'query') {
   const documents = [];
   if (/\.(graphql|gql)$/.test(file.relativePath)) documents.push({ text: file.text, offset: 0 });
   else for (const match of file.text.matchAll(/([`"'])([\s\S]*?)\1/g)) {
@@ -25,9 +25,46 @@ export function rootFieldMatches(file, name, guidance) {
           else if (node.kind === Kind.FRAGMENT_SPREAD && fragments.has(node.name.value) && !stack.includes(node.name.value)) visitRoot(fragments.get(node.name.value).selectionSet.selections,[...stack,node.name.value]);
         }
       };
-      for (const operation of ast.definitions.filter(d=>d.kind===Kind.OPERATION_DEFINITION && d.operation === 'query')) visitRoot(operation.selectionSet.selections);
+      for (const definition of ast.definitions.filter(d=>d.kind===Kind.OPERATION_DEFINITION && d.operation === operation)) visitRoot(definition.selectionSet.selections);
     } catch { /* Unsupported or malformed documents are not evidence of this removal. */ }
   }
+  return matches;
+}
+
+// Match enum values only when they are literal inputs to the named mutation.
+// Runtime variables and dynamically assembled documents remain outside this evidence.
+export function mutationEnumMatches(file, mutationNames, argumentName, objectPath, enumValues, guidance) {
+  const documents = literalDocuments(file);
+  const matches = [];
+  for (const doc of documents) try {
+    const ast = parse(doc.text, { maxTokens: 50000 });
+    const fragments = new Map(ast.definitions.filter(d => d.kind === Kind.FRAGMENT_DEFINITION).map(d => [d.name.value, d]));
+    let visits = 0;
+    const findValue = (value) => {
+      let current = value;
+      for (const fieldName of objectPath) {
+        if (current?.kind !== Kind.OBJECT) return null;
+        current = current.fields.find(field => field.name.value === fieldName)?.value;
+      }
+      return current;
+    };
+    const visitRoot = (selections, stack = []) => {
+      for (const node of selections ?? []) {
+        if (++visits > 50000) throw new Error('GraphQL expansion limit');
+        if (node.kind === Kind.FIELD) {
+          if (!mutationNames.includes(node.name.value)) continue;
+          const argument = node.arguments?.find(item => item.name.value === argumentName);
+          const value = findValue(argument?.value);
+          if (value?.kind === Kind.ENUM && enumValues.includes(value.value)) {
+            const index = doc.offset + value.loc.start, before = file.text.slice(0, index);
+            matches.push({ file: file.relativePath, line: before.split('\n').length, column: index - before.lastIndexOf('\n'), snippet: value.value, guidance });
+          }
+        } else if (node.kind === Kind.INLINE_FRAGMENT) visitRoot(node.selectionSet.selections, stack);
+        else if (node.kind === Kind.FRAGMENT_SPREAD && fragments.has(node.name.value) && !stack.includes(node.name.value)) visitRoot(fragments.get(node.name.value).selectionSet.selections, [...stack, node.name.value]);
+      }
+    };
+    for (const definition of ast.definitions.filter(d => d.kind === Kind.OPERATION_DEFINITION && d.operation === 'mutation')) visitRoot(definition.selectionSet.selections);
+  } catch { /* Malformed or dynamic documents cannot establish a literal mutation input. */ }
   return matches;
 }
 

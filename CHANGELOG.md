@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Pin all CodeQL steps to the same immutable v4.38.3 commit to prevent mismatched init and analyze versions.
+- Add target-aware checks for the removed 2027-01 market currency mutation and deprecated metaobject admin access input values.
+- Compare findings from independent base and head trees, preserving rename status and reporting resolved findings.
+- Evaluate API support against exact `accessibleUntil` timestamps and refresh the version registry through 14 October 2026.
+- Document the 2027-01 tax Global ID migration as a manual review because numeric-ID assumptions cannot be established reliably from static code alone.
+- Keep GraphQL 16 while Node.js 20 is supported, and document why generated deprecation metadata is not packaged without clear redistribution rights.
+
 ## 0.2.6
 
 - Add bounded target-aware checks for the 2026-10 ProductVariant barcode deprecation, segment query syntax changes, and inventory error removal, plus 2027-01 metafieldInteger removal.

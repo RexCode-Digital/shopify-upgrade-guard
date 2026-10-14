@@ -25,6 +25,28 @@ test('metafieldInteger GraphQL fields and type conditions are target-aware', asy
   assert.ok(!ids(await scan(root, { target: '2027-01' })).includes('UG-ADMIN-003'));
 });
 
+test('market currency mutation removal is restricted to literal Admin mutations', async (t) => {
+  const root = fixture(t, {
+    'markets.graphql': `mutation UpdateMarket { changed: marketCurrencySettingsUpdate(marketId: "gid://shopify/Market/1", input: {}) { userErrors { message } } }\nquery ReadMarket { shop { name } }`
+  });
+  assert.ok(!ids(await scan(root, { target: '2026-10' })).includes('UG-ADMIN-006'));
+  const finding = (await scan(root, { target: '2027-01' })).findings.find((item) => item.ruleId === 'UG-ADMIN-006');
+  assert.ok(finding); assert.equal(finding.line, 1); assert.match(finding.migration, /marketCreate.*marketUpdate/);
+  fs.writeFileSync(path.join(root, 'markets.graphql'), 'query { shop { name } }');
+  assert.ok(!ids(await scan(root, { target: '2027-01' })).includes('UG-ADMIN-006'));
+});
+
+test('removed metaobject access enum values require literal definition mutation evidence', async (t) => {
+  const root = fixture(t, {
+    'metaobjects.graphql': `mutation Create { metaobjectDefinitionCreate(definition: { type: "faq", access: { admin: PRIVATE } }) { userErrors { message } } }\nmutation Update { metaobjectDefinitionUpdate(definition: { access: { admin: PUBLIC_READ } }) { userErrors { message } } }`
+  });
+  assert.ok(!ids(await scan(root, { target: '2026-10' })).includes('UG-ADMIN-007'));
+  const findings = (await scan(root, { target: '2027-01' })).findings.filter((item) => item.ruleId === 'UG-ADMIN-007');
+  assert.equal(findings.length, 2); assert.deepEqual(findings.map((item) => item.snippet), ['PRIVATE', 'PUBLIC_READ']);
+  fs.writeFileSync(path.join(root, 'metaobjects.graphql'), `mutation Other { productUpdate(input: { access: { admin: PRIVATE } }) { userErrors { message } } }\nmutation Dynamic($definition: MetaobjectDefinitionUpdateInput!) { metaobjectDefinitionUpdate(definition: $definition) { userErrors { message } } }`);
+  assert.ok(!ids(await scan(root, { target: '2027-01' })).includes('UG-ADMIN-007'));
+});
+
 test('barcode deprecation is a warning only for statically selected Admin ProductVariant fields', async (t) => {
   const root = fixture(t, {
     'read.ts': 'const query = `query {\n  productVariant(id: $id) { code: barcode }\n  productVariants(first: 2) { nodes { ...VariantCodes } }\n}\nfragment VariantCodes on ProductVariant {\n  barcode\n}`;'

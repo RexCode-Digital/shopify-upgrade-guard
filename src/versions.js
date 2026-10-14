@@ -14,8 +14,16 @@ export function compareVersions(left, right) { const a = parseVersion(left); con
 export function isBefore(left, right) { return compareVersions(left, right) < 0; }
 export function isAtOrAfter(left, right) { return compareVersions(left, right) >= 0; }
 export function versionRecord(value) { const parsed = parseVersion(value); return parsed ? versions.find((item) => item.version === parsed) ?? null : null; }
-export function statusFor(value) { const parsed = parseVersion(value); if (!parsed) return 'unknown'; return versionRecord(parsed)?.status ?? 'unknown/future'; }
+export function statusFor(value, asOf = new Date()) {
+  const parsed = parseVersion(value);
+  if (!parsed) return 'unknown';
+  const record = versionRecord(parsed);
+  if (!record) return 'unknown/future';
+  const timestamp = asOf instanceof Date ? asOf.getTime() : Date.parse(asOf);
+  if (record.accessibleUntil && Number.isFinite(timestamp) && timestamp >= Date.parse(record.accessibleUntil)) return 'unsupported';
+  return record.status;
+}
 export function isKnownVersion(value) { return Boolean(versionRecord(value)); }
-export function targetRecord(value) { const parsed = parseVersion(value); if (!parsed) throw new Error(`Invalid target version: ${value}. Expected a quarterly YYYY-MM version (01, 04, 07, or 10).`); return versionRecord(parsed) ?? { version: parsed, status: 'unknown/future', accessibleUntil: null }; }
+export function targetRecord(value, asOf = new Date()) { const parsed = parseVersion(value); if (!parsed) throw new Error(`Invalid target version: ${value}. Expected a quarterly YYYY-MM version (01, 04, 07, or 10).`); const record = versionRecord(parsed); return record ? { ...record, status: statusFor(parsed, asOf) } : { version: parsed, status: 'unknown/future', accessibleUntil: null }; }
 export function becomesUnsupportedBefore(version, target) { const record = versionRecord(version); const targetVersion = targetRecord(target); return Boolean(record?.accessibleUntil && record.accessibleUntil.slice(0, 7) <= targetVersion.version); }
-export function versionSummary() { return versions; }
+export function versionSummary(asOf = new Date()) { return versions.map((record) => ({ ...record, status: statusFor(record.version, asOf) })); }
