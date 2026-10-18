@@ -56,7 +56,7 @@
     "c8": "12.0.0"
   },
   "dependencies": {
-    "graphql": "16.14.2"
+    "graphql": "17.0.2"
   },
   "homepage": "https://github.com/RexCode-Digital/shopify-upgrade-guard#readme"
 }
