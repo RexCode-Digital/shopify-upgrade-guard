@@ -16,7 +16,7 @@ Shopify Upgrade Guard is an offline, evidence-backed CLI and GitHub Action for S
 
 Maintained by RexCode Digital Ltd.
 
-Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. The parser remains on GraphQL 16 because GraphQL 17.0.2 requires Node.js 22 or later, which would drop the supported Node.js 20 runtime. [Releases](https://github.com/RexCode-Digital/shopify-upgrade-guard/releases) · [npm](https://www.npmjs.com/package/shopify-upgrade-guard) · [Marketplace](https://github.com/marketplace/actions/shopify-upgrade-guard)
+Part of the **RexCode Shopify developer tools** suite. This source version requires Node.js 22 or later for the CLI. [Releases](https://github.com/RexCode-Digital/shopify-upgrade-guard/releases) · [npm](https://www.npmjs.com/package/shopify-upgrade-guard) · [Marketplace](https://github.com/marketplace/actions/shopify-upgrade-guard)
 
 ## Quick start
 
@@ -102,13 +102,14 @@ The rule pack is intentionally focused. Literal GraphQL checks parse supported d
 | --- | --- | --- |
 | `UG-CHECKOUT-001` | `useBuyerJourneyIntercept` / `buyerJourney.intercept` | [Shopify changelog](https://shopify.dev/changelog/deprecating-the-usebuyerjourneyintercept-api-on-checkout-ui-extensions) |
 | `UG-CHECKOUT-002` | Checkout `block_progress` capability | [Shopify changelog](https://shopify.dev/changelog/deprecating-the-usebuyerjourneyintercept-api-on-checkout-ui-extensions) |
+| `UG-EXT-001` | Missing `owner_type` in eligible Checkout or Customer Account UI extension metafield declarations | [Shopify changelog](https://shopify.dev/changelog/posts/metafield-owner-types-required-for-checkout-and-customer-account-ui-extensions) |
 | `UG-REST-001` | Legacy Admin REST usage | [REST Admin API](https://shopify.dev/docs/api/admin-rest) |
 | `UG-VERSION-001` | Unsupported or target-retiring API versions | [API versioning](https://shopify.dev/docs/api/usage/versioning) |
 | `UG-VERSION-002` | Supported versions older than the latest stable version | [API versioning](https://shopify.dev/docs/api/usage/versioning) |
 | `UG-CUSTOMER-001` | Customer Account checkout removals relevant to 2026-10 | [Shopify changelog](https://shopify.dev/changelog/customer-account-api-last-incomplete-checkout-and-checkout-types-removed) |
 | `UG-POS-001` | Removed POS `session.currentSession.staffMemberId` usage | [Shopify changelog](https://shopify.dev/changelog/removed-session-currentsession-staffmemberid-from-pos-ui-extensions-2026-10) |
 | `UG-ADMIN-001` | Legacy Admin GraphQL `priceRule` usage | [2026-10 release notes](https://shopify.dev/release-notes/2026-10) |
-| `UG-ADMIN-002` | Literal GraphQL root `automaticDiscounts` removed in 2027-01 | [Official removal](https://shopify.dev/changelog/posts/automaticdiscounts-query-is-removed-in-api-version-2027-01) |
+| `UG-ADMIN-002` | Literal GraphQL `automaticDiscounts` root field and removed `DiscountAutomaticConnection` / `DiscountAutomaticEdge` types | [Official removal](https://shopify.dev/changelog/posts/automaticdiscounts-query-is-removed-in-api-version-2027-01) |
 | `UG-ADMIN-003` | GraphQL `metafieldInteger` collection conditions and types removed in 2027-01 | [Official removal](https://shopify.dev/changelog/posts/metafieldinteger-collection-condition-removed-in-api-version-2027-01) |
 | `UG-ADMIN-004` | `ProductVariant.barcode` read deprecated in 2026-10; it still works and no removal date is announced | [Official deprecation](https://shopify.dev/changelog/posts/product-variant-barcode-is-being-replaced-by-barcodes) |
 | `UG-ADMIN-006` | Literal `marketCurrencySettingsUpdate` Admin mutation removed in 2027-01 | [Official removal](https://shopify.dev/changelog/posts/removing-marketcurrencysettingsupdate-mutation) |
@@ -118,6 +119,8 @@ The rule pack is intentionally focused. Literal GraphQL checks parse supported d
 | `UG-SCRIPT-001` | Cross-version Script Tag write restrictions; REST resource references require method review | [Script Tag deprecation](https://shopify.dev/changelog/online-store-script-tags-deprecation) |
 
 Supported inventory surfaces include Admin REST, Admin GraphQL, Checkout UI extensions, Customer Account UI extensions, POS UI extensions, Functions, Shopify app TOML, and recognized Shopify client configuration.
+
+See the [2027-01 migration guide](docs/2027-01-migration.md) for the extension `owner_type` requirement, target-version behavior, evidence, and limits. The rule is in the Unreleased change set; existing npm packages and Action tags do not gain it until a release containing this branch is published.
 
 ## CLI
 
@@ -160,7 +163,7 @@ Baselined findings remain reviewable while new fingerprints stay actionable.
 
 `--fail-on-new` requires a valid Git base comparison. Upgrade Guard scans the base commit and head tree independently, then matches findings by rule, file identity, and evidence; recognized file renames keep existing debt stable. JSON includes `resolvedFindings`, and human output reports their count. Fetch full history and provide `--base-ref`, or use the pull-request Action. Missing refs/history exit 2 instead of passing an incomplete comparison.
 
-The bundled snapshot, verified 14 October 2026, lists `2026-10` as the latest stable API and `2027-01` as a release candidate for development testing. Version status uses Shopify's exact `accessibleUntil` timestamp: `2025-10` remains accessible until 16 October 2026 at 15:00 UTC, then becomes unsupported. Future version names do not imply verified rule coverage.
+The bundled snapshot, verified 21 October 2026, lists `2026-10` as the latest stable API and `2027-01` as a release candidate for development testing. Shopify lists `2027-01` as a release candidate until 1 January 2027, when it becomes stable. Version status uses Shopify's exact `accessibleUntil` timestamp; `2025-10` became unsupported on 16 October 2026 at 15:00 UTC. Future version names do not imply verified rule coverage.
 
 The 2027-01 tax payload change converts IDs in tax calculation requests and tax summary webhook payloads to Global IDs. Upgrade Guard cannot reliably tell whether arbitrary runtime parsing assumes numeric IDs, so tax app handlers need review against Shopify's [official migration note](https://shopify.dev/changelog/posts/tax-webhook-summary-and-calculation-requests-now-use-global-ids).
 

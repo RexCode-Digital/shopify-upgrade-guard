@@ -1,6 +1,7 @@
 import { isAtOrAfter, statusFor, latestStable, becomesUnsupportedBefore } from './versions.js';
 
-import { rootFieldMatches, fieldMatches, mutationEnumMatches, productVariantBarcodeMatches, segmentQueryMatches } from './graphql.js';
+import { rootFieldMatches, fieldMatches, namedTypeMatches, mutationEnumMatches, productVariantBarcodeMatches, segmentQueryMatches } from './graphql.js';
+import { missingOwnerTypeDeclarations } from './extension-config.js';
 
 const checkoutDeprecation = '2026-07';
 const removalVersion = '2026-10';
@@ -19,6 +20,26 @@ export const rules = [
     description: 'The block_progress capability is deprecated from Checkout UI extension version 2026-07 and supports the deprecated buyer journey intercept API.',
     detect(file) { if (!file.relativePath.endsWith('shopify.extension.toml')) return []; return matches(maskTomlComments(file.text), /^\s*block_progress\s*=\s*(?:true|false)\s*$/gm, 'Move validation logic to a cart and checkout validation Function.'); },
     evaluate(match, context) { return versionAware(match, this, context); }
+  },
+  {
+    id: 'UG-EXT-001', surface: 'ui_extension', severity: 'warning', title: 'UI extension metafield declaration is missing owner_type', confidence: 'high',
+    documentationUrl: 'https://shopify.dev/changelog/posts/metafield-owner-types-required-for-checkout-and-customer-account-ui-extensions',
+    migrationUrl: 'https://shopify.dev/changelog/posts/metafield-owner-types-required-for-checkout-and-customer-account-ui-extensions',
+    description: 'Checkout and Customer Account UI extension metafield declarations can specify owner_type from API version 2026-10. The property is required for every declaration from 2027-01.',
+    detect(file) { return missingOwnerTypeDeclarations(file); },
+    evaluate(match, context) {
+      if (!isAtOrAfter(context.targetVersion, '2026-10')) return null;
+      const deploymentBlocked = isAtOrAfter(context.targetVersion, '2027-01');
+      return {
+        ...match,
+        severity: deploymentBlocked ? 'error' : 'warning',
+        title: deploymentBlocked ? 'UI extension deployment requires metafield owner_type' : 'UI extension metafield owner_type migration is available',
+        classification: 'target',
+        reason: deploymentBlocked
+          ? `Shopify blocks deployments targeting ${context.targetVersion} when this declaration omits owner_type. Add the correct owner type for the resource.`
+          : 'owner_type is optional in API version 2026-10. Add the correct owner type for the resource before moving to API version 2027-01.'
+      };
+    }
   },
   {
     id: 'UG-CUSTOMER-001', surface: 'customer_account_api', severity: 'error', title: 'Customer Account checkout types are removed', removedIn: removalVersion, confidence: 'high',
@@ -49,11 +70,16 @@ export const rules = [
     evaluate(match) { return { ...match, classification: 'current', reason: this.description, ...(match.snippet === 'script_tags' ? { severity: 'warning', confidence: 'medium', title: 'Script Tag REST usage requires migration review', reason: 'Script Tag POST/PUT are restricted across all API versions; reads and deletes remain available. Review the HTTP method and plan storefront injection migration.' } : {}) }; }
   },
   {
-    id: 'UG-ADMIN-002', surface: 'admin_graphql_api', severity: 'error', title: 'automaticDiscounts query is removed', removedIn: '2027-01', confidence: 'high',
+    id: 'UG-ADMIN-002', surface: 'admin_graphql_api', severity: 'error', title: 'automaticDiscounts query and connection types are removed', removedIn: '2027-01', confidence: 'high',
     documentationUrl: 'https://shopify.dev/changelog/posts/automaticdiscounts-query-is-removed-in-api-version-2027-01',
     migrationUrl: 'https://shopify.dev/docs/api/admin-graphql/2027-01/queries/discountNodes',
-    description: 'The Admin GraphQL QueryRoot.automaticDiscounts field is removed in 2027-01. Migrate to discountNodes with a method:automatic filter.',
-    detect(file) { return rootFieldMatches(file, 'automaticDiscounts', 'Use discountNodes(first: ..., query: "method:automatic") and move discount fragments under DiscountNode.discount.'); },
+    description: 'The Admin GraphQL automaticDiscounts field and DiscountAutomaticConnection and DiscountAutomaticEdge types are removed in 2027-01. Migrate to discountNodes with a method:automatic filter.',
+    detect(file) {
+      return [
+        ...rootFieldMatches(file, 'automaticDiscounts', 'Use discountNodes(first: ..., query: "method:automatic") and move discount fragments under DiscountNode.discount.'),
+        ...namedTypeMatches(file, ['DiscountAutomaticConnection', 'DiscountAutomaticEdge'], 'Remove this reference to a type removed in 2027-01. Migrate automatic-discount queries to discountNodes with a method:automatic filter.')
+      ];
+    },
     evaluate(match, context) { return removalAware(match, this, context); }
   },
   {
