@@ -15,6 +15,19 @@ function fixture(t, files) {
 }
 const ids = (report) => report.findings.map((item) => item.ruleId);
 
+test('automatic discount connection and edge type removals are target-aware and literal', async (t) => {
+  const root = fixture(t, {
+    'discounts.graphql': `fragment DiscountConnection on DiscountAutomaticConnection { edges { node { id } } }\nfragment DiscountEdge on DiscountAutomaticEdge { node { id } }`,
+    'prose.js': `const note = "DiscountAutomaticConnection"; // DiscountAutomaticEdge is removed`
+  });
+  assert.equal(ids(await scan(root, { target: '2026-10' })).includes('UG-ADMIN-002'), false);
+  const findings = (await scan(root, { target: '2027-01' })).findings.filter((item) => item.ruleId === 'UG-ADMIN-002');
+  assert.deepEqual(findings.map((item) => item.snippet), ['DiscountAutomaticConnection', 'DiscountAutomaticEdge']);
+  assert.ok(findings.every((item) => item.severity === 'error' && item.file === 'discounts.graphql'));
+  fs.writeFileSync(path.join(root, 'discounts.graphql'), '# DiscountAutomaticEdge\nquery { shop { name } }');
+  assert.equal(ids(await scan(root, { target: '2027-01' })).includes('UG-ADMIN-002'), false);
+});
+
 test('metafieldInteger GraphQL fields and type conditions are target-aware', async (t) => {
   const root = fixture(t, { 'collection.graphql': `query Conditions { collections(first: 1) { nodes { source { inclusion { conditions { ...IntegerCondition } } } } } }\nfragment IntegerCondition on CollectionSourceInclusionConditionMetafieldInteger { value }\nmutation Update($input: CollectionSourceInclusionConditionInput!) { collectionUpdate(input: { conditions: [{ metafieldInteger: { value: 42 } }] }) { userErrors { message } } }` });
   assert.ok(!ids(await scan(root, { target: '2026-10' })).includes('UG-ADMIN-003'));

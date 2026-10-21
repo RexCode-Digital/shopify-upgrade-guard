@@ -1,6 +1,6 @@
 // Generated from data/versions.json.
 export default {
-  "verifiedAt": "2026-10-14",
+  "verifiedAt": "2026-10-21",
   "source": "https://shopify.dev/docs/api/usage/versioning",
   "versions": [
     {

@@ -36,7 +36,7 @@ Do not add rules based only on blog posts, social posts, guesses, or undocumente
 
 ## Development
 
-Requires Node.js 20 or newer.
+Requires Node.js 22 or newer. The supported CI matrix uses Node.js 22 and 24.
 
 ```bash
 npm ci
