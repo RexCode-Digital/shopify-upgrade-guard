@@ -67,7 +67,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: RexCode-Digital/shopify-upgrade-guard@b0a6816f95d783f703bf031c9920004fbb865bc1 # v0.2.6
+      - uses: RexCode-Digital/shopify-upgrade-guard@71f9cdca7d0b34b07c1dfb60c2dc649e2e595139 # v0.4.0
         with:
           target: 2026-10
           fail-on: warning
@@ -92,7 +92,7 @@ Use the immutable patch release tag or a reviewed full commit SHA. Existing mino
 
 The Action is bundled and runs on the current GitHub `node24` JavaScript Action runtime.
 
-The example above pins v0.2.6, which does not expose `resolved-finding-count`. The independent base/head comparison and resolved-finding behaviour described below are part of the unreleased changes here; they are not available from the current npm package or Action.
+The pinned v0.4.0 release includes `resolved-finding-count` and the independent base/head comparison described below.
 
 ## What it catches today
 
@@ -120,7 +120,7 @@ The rule pack is intentionally focused. Literal GraphQL checks parse supported d
 
 Supported inventory surfaces include Admin REST, Admin GraphQL, Checkout UI extensions, Customer Account UI extensions, POS UI extensions, Functions, Shopify app TOML, and recognized Shopify client configuration.
 
-See the [2027-01 migration guide](docs/2027-01-migration.md) for the extension `owner_type` requirement, target-version behavior, evidence, and limits. The rule is in the Unreleased change set; existing npm packages and Action tags do not gain it until a release containing this branch is published.
+See the [2027-01 migration guide](docs/2027-01-migration.md) for the extension `owner_type` requirement, target-version behaviour, evidence, and limits. Upgrade Guard 0.4.0 includes `UG-EXT-001`; its severity depends on the selected target, from a migration warning at `2026-10` to a deployment error at `2027-01`.
 
 ## CLI
 
@@ -238,10 +238,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Immutable SHA usage
 
-The Action example pins the reviewed v0.2.6 release commit. Verify the release reference with:
+The Action example pins the reviewed v0.4.0 release commit. Verify the release reference with:
 
 ```bash
-git fetch --tags origin && git rev-parse 'v0.2.6^{commit}'
+git fetch --tags origin && git rev-parse 'v0.4.0^{commit}'
 ```
 
 Published patch tags and existing minor aliases are retained. Future releases do not move minor aliases; use an immutable patch tag or a reviewed full commit SHA.
