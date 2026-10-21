@@ -1,19 +1,12 @@
 # Release process
 
-Releases are tag-triggered and below 1.0. The release workflow runs tests, coverage, lint, reproducible Action bundling, audit, package smoke tests, npm publication with provenance, and GitHub Release creation.
+Releases below 1.0 are tag-triggered. The release workflow runs tests, coverage, lint, reproducible Action bundling, audit, package smoke tests, npm publication with provenance, and GitHub Release creation.
 
-Before enabling the first release tag, configure npm Trusted Publishing for package `shopify-upgrade-guard`:
+Before tagging a release:
 
-- npm package settings → Trusted Publishers → GitHub Actions;
-- owner: `RexCode-Digital`;
-- repository: `shopify-upgrade-guard`;
-- workflow: `.github/workflows/release.yml`;
-- environment: leave unset unless the npm package policy requires one.
+- Confirm the npm Trusted Publisher for `shopify-upgrade-guard` still uses owner `RexCode-Digital`, this repository, and `.github/workflows/release.yml`.
+- Check that the package version matches a new immutable `vX.Y.Z` tag and that the changelog has a matching `## X.Y.Z` section.
+- Verify the generated Action bundle, coverage, package smoke test, third-party licence inventory, official evidence links, and npm provenance configuration.
+- Run hosted CI on Node.js 22 and 24, `npm pack --dry-run`, and the dependency audit.
 
-For each release, verify the reviewed PR, generated `dist`, coverage, package smoke test, third-party license inventory, and official evidence links before creating a tag. Marketplace submission is a separate final UI gate.
-
-## Next candidate: 0.4.0
-
-The next candidate is `0.4.0` under the current 0.x versioning policy. Requiring Node.js 22 is a breaking change for users still on Node.js 20, so include it in the release notes and check `engines.node`, setup-node matrices, and runtime documentation together.
-
-Before any release, require PR review and hosted CI on Node.js 22 and 24, reproducible Action bundling, clean package installation and smoke checks, `npm pack --dry-run`, dependency audit, and a review of third-party notices and immutable Action SHAs. Confirm npm provenance configuration and changelog accuracy. This is a plan only; it does not create a tag, GitHub Release, or npm publication.
+The CLI requires Node.js 22 or newer; the GitHub Action runs on Node.js 24. Treat any change to the CLI runtime floor as a breaking compatibility change and update the engine declaration, CI matrix, documentation, and changelog together. Marketplace submission is a separate final UI step.

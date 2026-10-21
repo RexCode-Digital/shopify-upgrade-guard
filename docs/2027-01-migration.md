@@ -23,6 +23,6 @@ shopify-upgrade-guard scan --target 2027-01
 
 `2027-01` is a release candidate, so use it for migration review and development testing. This check proves only that a supported static TOML declaration is missing the property; it does not validate that a chosen owner type is semantically correct. Malformed `shopify.extension.toml` input fails the scan instead of being treated as a clean result.
 
-This rule is in the Unreleased change set. Existing npm package versions and published Action tags do not include it until a release containing the change is published.
+Upgrade Guard 0.4.0 includes this rule in both the npm package and bundled Action. At target `2026-10`, missing `owner_type` is reported as a migration warning; from target `2027-01`, it is reported as a deployment error.
 
 Evidence: [Shopify's owner_type changelog](https://shopify.dev/changelog/posts/metafield-owner-types-required-for-checkout-and-customer-account-ui-extensions), [Checkout metafield configuration](https://shopify.dev/docs/apps/build/checkout/metafields), [Customer Account metafields](https://shopify.dev/docs/apps/build/customer-accounts/metafields-in-customer-accounts), and [2027-01 release notes](https://shopify.dev/changelog/release-notes/2027-01).
