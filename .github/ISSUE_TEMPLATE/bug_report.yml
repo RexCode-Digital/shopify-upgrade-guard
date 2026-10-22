@@ -1,31 +1,49 @@
 name: Bug report
-description: Report a reproducible problem in Shopify Upgrade Guard
-title: "[Bug] "
-labels: []
+description: Report a reproducible Shopify Upgrade Guard problem
+title: "bug: "
 body:
   - type: markdown
     attributes:
-      value: |
-        Thanks for reporting a problem. Please avoid including merchant data, credentials, tokens, or private source.
+      value: "Use a minimal sanitised example. Never include credentials, tokens, merchant/customer data, private source, or production secrets. For suspected vulnerabilities, use the private reporting link."
   - type: input
-    id: version
+    id: tool-version
     attributes:
-      label: Upgrade Guard version
-      placeholder: 0.2.1
+      label: Tool version
     validations:
       required: true
   - type: input
-    id: node
+    id: runtime
     attributes:
       label: Node.js and npm versions
-      placeholder: Node 24.x, npm 11.x
+      placeholder: Node.js 22.x; npm 10.x
+    validations:
+      required: true
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Execution mode
+      options:
+        - CLI
+        - GitHub Action
+        - Other
     validations:
       required: true
   - type: textarea
-    id: command
+    id: reproduction
     attributes:
-      label: Command or GitHub Action configuration
-      description: Remove secrets before pasting.
+      label: Minimal sanitised reproduction
+      description: Use synthetic configuration and source where possible. Remove credentials, merchant data, private URLs, and secrets.
     validations:
       required: true
   - type: textarea
@@ -41,16 +59,9 @@ body:
     validations:
       required: true
   - type: textarea
-    id: reproduction
+    id: output
     attributes:
-      label: Minimal reproduction
-      description: Prefer a small public fixture or sanitized snippet.
-  - type: checkboxes
-    id: checks
-    attributes:
-      label: Checks
-      options:
-        - label: I removed credentials, merchant data, and private source from this report.
-          required: true
-        - label: I checked existing issues for duplicates.
-          required: true
+      label: Sanitised output
+      description: Optional. Remove private paths and any sensitive values.
+    validations:
+      required: false

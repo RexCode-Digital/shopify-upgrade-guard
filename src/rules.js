@@ -125,6 +125,17 @@ export const rules = [
     evaluate(match, context) { return removalAware(match, this, context); }
   },
   {
+    id: 'UG-TAX-001', surface: 'tax_app_webhook', severity: 'warning', title: 'Tax summary webhook identifiers become Global IDs', confidence: 'medium',
+    documentationUrl: 'https://shopify.dev/changelog/posts/tax-webhook-summary-and-calculation-requests-now-use-global-ids',
+    migrationUrl: 'https://shopify.dev/changelog/posts/tax-webhook-summary-and-calculation-requests-now-use-global-ids',
+    description: 'Starting with API version 2027-01, third-party tax apps receive Shopify Global IDs in tax calculation requests and tax summary webhook entity references. Numeric-ID assumptions may need to change.',
+    detect(file) { return taxSummaryWebhookMatches(file, 'Review the tax integration for string Global IDs in calculation requests and tax summary webhook payloads; do not coerce opaque IDs to numbers.'); },
+    evaluate(match, context) {
+      if (!isAtOrAfter(context.targetVersion, '2027-01')) return null;
+      return { ...match, classification: 'target', reason: 'This app config subscribes to tax_summaries/create and target ' + context.targetVersion + ' includes the documented Global ID change. Static analysis cannot tell whether the handler already accepts GIDs; test the affected payloads. ' + this.description };
+    }
+  },
+  {
     id: 'UG-REST-001', surface: 'admin_rest_api', severity: 'warning', title: 'REST Admin API usage is legacy', confidence: 'high',
     documentationUrl: 'https://shopify.dev/docs/api/admin-rest', migrationUrl: 'https://shopify.dev/docs/api/admin-graphql',
     description: 'The REST Admin API is legacy. New public apps must use the GraphQL Admin API; existing integrations should plan migration where applicable.',
@@ -162,6 +173,44 @@ function deprecationAware(match, rule, context) {
   return { ...match, classification: 'target', reason: `This usage is deprecated for target ${context.targetVersion}. ${rule.description}` };
 }
 function matches(text, pattern, guidance) { return [...text.matchAll(pattern)].map((match) => { const before = text.slice(0, match.index); return { file: null, line: before.split('\n').length, column: match.index - before.lastIndexOf('\n'), snippet: match[0], guidance }; }); }
+function taxSummaryWebhookMatches(file, guidance) {
+  const filename = file.relativePath.split('/').at(-1);
+  if (!/^shopify\.app(?:\.[^/]+)?\.toml$/.test(filename)) return [];
+  const lines = maskTomlComments(file.text).split('\n');
+  const found = [];
+  let inWebhookSubscription = false;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const arrayTable = line.match(/^\s*\[\[([^\]]+)\]\]\s*$/);
+    const table = line.match(/^\s*\[([^\]]+)\]\s*$/);
+    if (arrayTable || table) {
+      inWebhookSubscription = arrayTable?.[1] === 'webhooks.subscriptions';
+      continue;
+    }
+    if (!inWebhookSubscription) continue;
+    const topics = line.match(/^\s*topics\s*=\s*\[/);
+    if (!topics) continue;
+    let values = line.slice(topics[0].length);
+    let closingIndex = values.indexOf(']');
+    let endLine = index;
+    while (closingIndex === -1 && endLine + 1 < lines.length) {
+      endLine += 1;
+      values += '\n' + lines[endLine];
+      closingIndex = values.indexOf(']');
+    }
+    if (closingIndex === -1) continue;
+    const arrayContents = values.slice(0, closingIndex);
+    if (!/(['"])tax_summaries\/create\1/.test(arrayContents)) continue;
+    found.push({
+      file: null,
+      line: index + 1,
+      column: topics[0].indexOf('topics') + 1,
+      snippet: 'tax_summaries/create',
+      guidance
+    });
+  }
+  return found;
+}
 export function attachFile(matchesForFile, file) { return matchesForFile.map((match) => ({ ...match, file: file.relativePath })); }
 function maskCommentsAndStrings(text) { return text.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\/|(['"`])(?:\\.|(?!\1)[^\\])*\1/g, (value) => value.replace(/[^\n]/g, ' ')); }
 function maskComments(text) { return text.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (value) => value.replace(/[^\n]/g, ' ')); }
