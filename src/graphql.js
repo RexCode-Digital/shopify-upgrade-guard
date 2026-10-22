@@ -88,6 +88,19 @@ export function fieldMatches(file, fields, types, guidance) {
   return matches;
 }
 
+export function namedTypeMatches(file, types, guidance) {
+  const matches = [];
+  for (const doc of literalDocuments(file)) try {
+    const ast = parse(doc.text, { maxTokens: 50000 });
+    visit(ast, { NamedType(node) {
+      if (!types.includes(node.name.value)) return;
+      const index = doc.offset + node.name.loc.start, before = file.text.slice(0, index);
+      matches.push({ file: file.relativePath, line: before.split('\n').length, column: index - before.lastIndexOf('\n'), snippet: node.name.value, guidance });
+    } });
+  } catch { /* Malformed or dynamic documents cannot establish a literal type reference. */ }
+  return matches;
+}
+
 export function productVariantBarcodeMatches(file, guidance) {
   const documents = literalDocuments(file);
   const matches = [];

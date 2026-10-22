@@ -1,6 +1,6 @@
 {
   "name": "shopify-upgrade-guard",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Check documented Shopify API and platform upgrade compatibility risks with an offline CLI and GitHub Action.",
   "type": "module",
   "bin": {
@@ -28,7 +28,7 @@
     "prebuild:action": "node scripts/write-version.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "license": "MIT",
   "repository": {
@@ -56,6 +56,7 @@
     "c8": "12.0.0"
   },
   "dependencies": {
+    "@iarna/toml": "2.2.5",
     "graphql": "17.0.2"
   },
   "homepage": "https://github.com/RexCode-Digital/shopify-upgrade-guard#readme"

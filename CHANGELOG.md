@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.4.0
+
+- Add `UG-EXT-001` for missing `owner_type` in structurally parsed Checkout and Customer Account UI extension metafield declarations; report an optional migration warning for target `2026-10` and a deployment error from target `2027-01`.
+- Extend `UG-ADMIN-002` to detect literal references to the removed `DiscountAutomaticConnection` and `DiscountAutomaticEdge` GraphQL types.
+- Breaking: require Node.js 22 or newer for the CLI; Node.js 20 is no longer supported. The Action remains on Node.js 24, and CI retains the required Node.js 20 check alongside Node.js 22 and 24.
+- Reverify the Shopify version registry on 21 October 2026; `2027-01` remains a release candidate and `2025-10` is now beyond its documented access cutoff.
+- Retain GraphQL 16.14.2; the extension rule uses TOML parsing and does not depend on the separate open GraphQL 17 Dependabot change.
+
 ## 0.3.0
 
 - Pin all CodeQL steps to the same immutable v4.38.3 commit to prevent mismatched init and analyze versions.
