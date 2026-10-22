@@ -1,13 +1,17 @@
 # Security policy
 
-## Reporting a vulnerability
+Shopify Upgrade Guard is an offline developer tool. An ordinary scan reads repository files; it does not require Shopify credentials, call Shopify APIs, or upload scanned source.
 
-Report suspected vulnerabilities privately through [GitHub private vulnerability reporting](https://github.com/RexCode-Digital/shopify-upgrade-guard/security/advisories/new). Include the exact version, affected command, and a minimal sanitized reproduction. Do not include Shopify credentials, access tokens, private keys, merchant data, or private source.
+## Supported versions
 
-Please coordinate public disclosure with the maintainer while the report is investigated and a fix is prepared. Response time depends on maintainer availability; no response-time guarantee is offered.
+The latest published release and the default branch receive security fixes. Upgrade to the latest release before reporting an issue.
 
-## Supported versions and security model
+## Report a vulnerability
 
-The latest published package and `main` receive security attention. Upgrade to the latest patch before reporting an issue.
+Use [GitHub private vulnerability reporting](https://github.com/RexCode-Digital/shopify-upgrade-guard/security/advisories/new). Include the affected version, command or Action, impact, and a minimal sanitised reproduction. Do not include credentials, access tokens, private keys, merchant/customer data, private source, or production configuration.
 
-Ordinary scans read local files, do not execute scanned repository code, contact Shopify, or upload source. Static analysis does not certify security or replace runtime testing. Symlink checks and file-size limits do not sandbox a filesystem that changes concurrently during scanning.
+Please coordinate public disclosure with the maintainer while the report is assessed and a fix is prepared. Response time depends on maintainer availability; no response-time guarantee is offered.
+
+## Security boundaries
+
+Static analysis is bounded and cannot prove runtime behaviour, complete security, Shopify compliance, or App Store approval. Review each product's documentation for its specific evidence limits.

@@ -1,75 +1,27 @@
-# Contributing
+# Contributing to Shopify Upgrade Guard
 
-Thanks for helping improve Shopify Upgrade Guard.
+Contributions are welcome around version-aware Shopify API migration rules backed by official sources, bounded detection, false-positive reduction, and CLI/Action reliability.
 
-## Contribution terms
+This project is MIT licensed. You retain copyright in your contributions and confirm you have the right to submit them. Identify third-party code and assets with their applicable licences.
 
-You retain copyright in your contributions. By submitting a contribution, you agree that it is provided under the same MIT licence that applies to this project. You confirm that you have the right to submit the contribution. Disclose any third-party code or assets and identify their applicable licences before including them.
+Use Node.js 22 or newer. Install the locked dependencies and run the relevant checks before opening a pull request:
 
-The project deliberately prefers **high-confidence, evidence-backed checks** over a large noisy rule catalogue. A false-positive-heavy upgrade scanner is worse than a smaller one developers can trust.
-
-## Good contribution areas
-
-- New Shopify migration rules backed by official `shopify.dev` evidence
-- False-positive reductions
-- Target-version logic
-- PR lifecycle classification
-- SARIF and CI improvements
-- Scanner safety and cross-platform fixtures
-- Documentation and reproducible examples
-
-Browse the [open issues](https://github.com/RexCode-Digital/shopify-upgrade-guard/issues) for current work.
-
-## Rule requirements
-
-Every Shopify-specific rule should include:
-
-1. an official Shopify documentation or changelog source
-2. the affected API surface
-3. the affected version or lifecycle status
-4. bounded deterministic detection logic
-5. concise migration guidance
-6. a positive fixture test
-7. false-positive coverage
-
-Do not add rules based only on blog posts, social posts, guesses, or undocumented behaviour.
-
-## Development
-
-Requires Node.js 22 or newer. The supported CI matrix uses Node.js 22 and 24.
-
-```bash
+```sh
 npm ci
 npm test
 npm run coverage
 npm run lint
+npm run build:action
 npm run check:dist
-npm audit --omit=dev --audit-level=high
-npm pack --dry-run
+npm run package:smoke
+npm run action:check
+npm run pack:check
+npm audit
+git diff --check
 ```
 
-Keep generated Action output in sync with source.
+Add a regression test for each behaviour change. Keep fixtures synthetic and sanitised. Link current official Shopify evidence for Shopify-specific rules or mappings, and include a negative case where static detection could otherwise produce a false positive. Keep output deterministic and preserve the product's uncertainty and privacy boundaries.
 
-## Pull requests
+The project follows a solo-maintainer review model. Use a focused pull request and record the checks actually run. Human approval is not a branch-protection requirement; automated checks remain required. AI-assisted contributions are welcome. Contributors are responsible for reviewing and understanding every submitted change.
 
-Keep PRs focused. Explain:
-
-- what Shopify behaviour is being detected
-- why the matcher is safe
-- the official evidence
-- the affected versions
-- how false positives are avoided
-
-AI-assisted contributions are welcome, but the human submitter must review and understand the change.
-
-These repositories use a solo-maintainer review model. Keep changes in pull requests and merge only after the required automated checks pass. CODEOWNERS may route review requests, but human approval is not a merge requirement.
-
-## Security
-
-Do not report vulnerabilities or sensitive merchant/repository data in public issues. Follow [SECURITY.md](SECURITY.md).
-
-## Maintainer updates
-
-For quarterly Shopify evidence updates and releases, follow [the maintainer release process](docs/maintainer-release-process.md).
-
-Do not publicly report findings from third-party repositories without permission.
+Read the shared [RexCode Open Source standards](https://github.com/RexCode-Digital/.github/blob/main/docs/oss/standards.md). For security reports, use [SECURITY.md](SECURITY.md); for safe usage questions, use [SUPPORT.md](SUPPORT.md).

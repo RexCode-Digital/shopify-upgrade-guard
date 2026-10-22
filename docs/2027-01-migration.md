@@ -26,3 +26,15 @@ shopify-upgrade-guard scan --target 2027-01
 Upgrade Guard 0.4.0 includes this rule in both the npm package and bundled Action. At target `2026-10`, missing `owner_type` is reported as a migration warning; from target `2027-01`, it is reported as a deployment error.
 
 Evidence: [Shopify's owner_type changelog](https://shopify.dev/changelog/posts/metafield-owner-types-required-for-checkout-and-customer-account-ui-extensions), [Checkout metafield configuration](https://shopify.dev/docs/apps/build/checkout/metafields), [Customer Account metafields](https://shopify.dev/docs/apps/build/customer-accounts/metafields-in-customer-accounts), and [2027-01 release notes](https://shopify.dev/changelog/release-notes/2027-01).
+
+## Tax calculation and summary webhook identifiers
+
+Shopify documents that third-party tax apps receive Global IDs instead of numeric IDs in tax calculation requests and tax summary webhook entity references from API version `2027-01`. For app-specific subscriptions, Shopify stores webhook topics in `[[webhooks.subscriptions]]` tables in `shopify.app*.toml` and serializes their payloads using the configured webhook API version.
+
+Upgrade Guard reports `UG-TAX-001` only when it finds the exact `tax_summaries/create` topic in a declared Shopify app webhook subscription and the selected target is `2027-01` or later. This is a warning: the configuration proves the app subscribes to the affected summary webhook, but static analysis cannot establish whether its handler already accepts string GIDs or whether it also processes tax calculation requests.
+
+Test tax calculation and webhook fixtures using GIDs, keep identifiers as opaque strings, and check any code that converts identifiers to numbers. This rule does not match tax-like strings in ordinary source files, comments, or Shopify Events subscriptions. It also cannot discover shop-specific subscriptions created through the Admin API.
+
+The rule is part of the unreleased source changes and is not included in the published `0.4.0` package or Action.
+
+Evidence: [Shopify's 2027-01 tax ID changelog](https://shopify.dev/changelog/posts/tax-webhook-summary-and-calculation-requests-now-use-global-ids), [Shopify's webhook subscription configuration](https://shopify.dev/docs/apps/build/webhooks/subscribe), and [the 2027-01 release notes](https://shopify.dev/changelog/release-notes/2027-01).

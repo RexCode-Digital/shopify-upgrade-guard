@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add the target-aware `UG-TAX-001` review finding when a Shopify app config subscribes to `tax_summaries/create` and the scan targets API version 2027-01 or later. The warning identifies the affected integration but does not claim to prove numeric-ID assumptions in its handler.
+
 ## 0.4.0
 
 - Add `UG-EXT-001` for missing `owner_type` in structurally parsed Checkout and Customer Account UI extension metafield declarations; report an optional migration warning for target `2026-10` and a deployment error from target `2027-01`.
