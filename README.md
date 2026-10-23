@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: RexCode-Digital/shopify-upgrade-guard@v0.5.0 # v0.5.0
+      - uses: RexCode-Digital/shopify-upgrade-guard@64b68f183e4172248462b0ffd0cb06a3d640695d # v0.5.0
         with:
           target: 2026-10
           fail-on: warning
