@@ -33,7 +33,7 @@ Use `npx shopify-upgrade-guard --help` for all commands. See the [CLI guide](doc
 
 ## GitHub Action
 
-Pin the released v0.4.0 commit:
+Pin the v0.5.0 release tag for the `UG-TAX-001` rule. The repository ruleset prevents released semantic version tags from being changed or deleted:
 
 ```yaml
 name: Check Shopify API migration
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: RexCode-Digital/shopify-upgrade-guard@71f9cdca7d0b34b07c1dfb60c2dc649e2e595139 # v0.4.0
+      - uses: RexCode-Digital/shopify-upgrade-guard@v0.5.0 # v0.5.0
         with:
           target: 2026-10
           fail-on: warning
@@ -80,7 +80,7 @@ The example is shortened from a scan of a synthetic GraphQL document.
 
 Rules cover documented Shopify API and platform lifecycle changes across supported Admin GraphQL, Customer Account, Checkout UI, POS, extension-configuration and other tracked surfaces. Each rule defines its affected version and migration guidance; the [CLI guide](docs/cli.md), generated rule catalogue from the rules command, and [migration documentation](docs/2027-01-migration.md) describe current coverage. Rules only apply at their documented version boundary.
 
-The source branch also contains the proposed `UG-TAX-001` check for an explicit `tax_summaries/create` subscription and target `2027-01`. It is not part of the published v0.4.0 package or Action. See the [2027-01 research and limits](docs/2027-01-migration.md).
+Version 0.5.0 adds `UG-TAX-001` for an explicit `tax_summaries/create` subscription when the selected target is `2027-01` or later. It reports a review warning; it cannot determine whether the handler already accepts Global IDs. See the [2027-01 research and limits](docs/2027-01-migration.md).
 
 ## Limitations and privacy
 

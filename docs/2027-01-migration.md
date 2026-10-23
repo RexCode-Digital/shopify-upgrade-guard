@@ -35,6 +35,6 @@ Upgrade Guard reports `UG-TAX-001` only when it finds the exact `tax_summaries/c
 
 Test tax calculation and webhook fixtures using GIDs, keep identifiers as opaque strings, and check any code that converts identifiers to numbers. This rule does not match tax-like strings in ordinary source files, comments, or Shopify Events subscriptions. It also cannot discover shop-specific subscriptions created through the Admin API.
 
-The rule is part of the unreleased source changes and is not included in the published `0.4.0` package or Action.
+Upgrade Guard v0.5.0 includes `UG-TAX-001` in the CLI package and bundled Action. Version 0.4.0 does not include this rule. The warning only identifies the configured webhook and version boundary; it does not establish how the handler processes identifiers.
 
-Evidence: [Shopify's 2027-01 tax ID changelog](https://shopify.dev/changelog/posts/tax-webhook-summary-and-calculation-requests-now-use-global-ids), [Shopify's webhook subscription configuration](https://shopify.dev/docs/apps/build/webhooks/subscribe), and [the 2027-01 release notes](https://shopify.dev/changelog/release-notes/2027-01).
+Evidence: [Shopify's 2027-01 tax ID changelog](https://shopify.dev/changelog/posts/tax-webhook-summary-and-calculation-requests-now-use-global-ids), [the changelog introducing `tax_summaries/create`](https://shopify.dev/changelog/posts/taxsummariescreate-webhook-and-taxsummarycreate-mutation-now-available), [Shopify's webhook subscription configuration](https://shopify.dev/docs/apps/build/webhooks/subscribe), and [the 2027-01 release notes](https://shopify.dev/changelog/release-notes/2027-01).
