@@ -29,7 +29,9 @@ uri = "/webhooks/tax-summary"
 
   assert.equal((await scan(root, { target: '2026-10' })).findings.some((item) => item.ruleId === 'UG-TAX-001'), false);
   const finding = (await scan(root, { target: '2027-01' })).findings.find((item) => item.ruleId === 'UG-TAX-001');
+  const laterTarget = (await scan(root, { target: '2027-04' })).findings.find((item) => item.ruleId === 'UG-TAX-001');
   assert.ok(finding);
+  assert.ok(laterTarget);
   assert.equal(finding.line, 5);
   assert.equal(finding.severity, 'warning');
   assert.equal(finding.classification, 'target');
@@ -89,4 +91,51 @@ uri = "/events/tax-summary"
   });
 
   assert.equal((await scan(root, { target: '2027-01' })).findings.some((item) => item.ruleId === 'UG-TAX-001'), false);
+});
+
+test('does not match a tax topic embedded in another valid TOML string', async (t) => {
+  const root = fixture(t, {
+    'shopify.app.toml': `[webhooks]
+api_version = "2027-01"
+
+[[webhooks.subscriptions]]
+topics = ["orders/create", "not-a-topic \\\"tax_summaries/create"]
+uri = "/webhooks/orders"
+`
+  });
+
+  assert.equal((await scan(root, { target: '2027-01' })).findings.some((item) => item.ruleId === 'UG-TAX-001'), false);
+});
+
+test('ignores a topic-like scalar where Shopify expects an array', async (t) => {
+  const root = fixture(t, {
+    'shopify.app.toml': `[webhooks]
+api_version = "2027-01"
+
+[[webhooks.subscriptions]]
+topics = "tax_summaries/create"
+uri = "/webhooks/orders"
+`
+  });
+
+  assert.equal((await scan(root, { target: '2027-01' })).findings.some((item) => item.ruleId === 'UG-TAX-001'), false);
+});
+
+test('rejects malformed Shopify app TOML without echoing its values', async (t) => {
+  const root = fixture(t, {
+    'shopify.app.toml': `[webhooks]
+api_version = "2027-01"
+
+[[webhooks.subscriptions]]
+topics = ["tax_summaries/create"]
+uri = "PRIVATE_CONFIGURATION_VALUE"
+uri = "/duplicate-key"
+`
+  });
+
+  await assert.rejects(scan(root, { target: '2027-01' }), (error) => {
+    assert.match(error.message, /Malformed Shopify app TOML in shopify\.app\.toml/);
+    assert.doesNotMatch(error.message, /PRIVATE_CONFIGURATION_VALUE/);
+    return true;
+  });
 });

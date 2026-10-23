@@ -1,3 +1,4 @@
+import TOML from '@iarna/toml';
 import { isAtOrAfter, statusFor, latestStable, becomesUnsupportedBefore } from './versions.js';
 
 import { rootFieldMatches, fieldMatches, namedTypeMatches, mutationEnumMatches, productVariantBarcodeMatches, segmentQueryMatches } from './graphql.js';
@@ -176,31 +177,33 @@ function matches(text, pattern, guidance) { return [...text.matchAll(pattern)].m
 function taxSummaryWebhookMatches(file, guidance) {
   const filename = file.relativePath.split('/').at(-1);
   if (!/^shopify\.app(?:\.[^/]+)?\.toml$/.test(filename)) return [];
-  const lines = maskTomlComments(file.text).split('\n');
+  let manifest;
+  try {
+    manifest = TOML.parse(file.text);
+  } catch {
+    throw new Error(`Malformed Shopify app TOML in ${file.relativePath}`);
+  }
+  const subscriptions = manifest.webhooks?.subscriptions;
+  if (!Array.isArray(subscriptions)) return [];
+
+  const lines = file.text.split(/\r?\n/);
   const found = [];
   let inWebhookSubscription = false;
+  let subscriptionIndex = -1;
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     const arrayTable = line.match(/^\s*\[\[([^\]]+)\]\]\s*$/);
     const table = line.match(/^\s*\[([^\]]+)\]\s*$/);
     if (arrayTable || table) {
       inWebhookSubscription = arrayTable?.[1] === 'webhooks.subscriptions';
+      if (inWebhookSubscription) subscriptionIndex += 1;
       continue;
     }
     if (!inWebhookSubscription) continue;
-    const topics = line.match(/^\s*topics\s*=\s*\[/);
+    const topics = line.match(/^\s*topics\s*=/);
     if (!topics) continue;
-    let values = line.slice(topics[0].length);
-    let closingIndex = values.indexOf(']');
-    let endLine = index;
-    while (closingIndex === -1 && endLine + 1 < lines.length) {
-      endLine += 1;
-      values += '\n' + lines[endLine];
-      closingIndex = values.indexOf(']');
-    }
-    if (closingIndex === -1) continue;
-    const arrayContents = values.slice(0, closingIndex);
-    if (!/(['"])tax_summaries\/create\1/.test(arrayContents)) continue;
+    const topicList = subscriptions[subscriptionIndex]?.topics;
+    if (!Array.isArray(topicList) || !topicList.includes('tax_summaries/create')) continue;
     found.push({
       file: null,
       line: index + 1,

@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+## 0.5.0
+
 - Add the target-aware `UG-TAX-001` review finding when a Shopify app config subscribes to `tax_summaries/create` and the scan targets API version 2027-01 or later. The warning identifies the affected integration but does not claim to prove numeric-ID assumptions in its handler.
+- Parse Shopify app TOML before evaluating the tax webhook rule, so malformed configuration fails with a value-free error and topic-like text inside another TOML string cannot create a finding.
+- Upgrade the GraphQL parser from 16.14.2 to 17.0.2.
 
 ## 0.4.0
 
