@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "@iarna/toml": "2.2.5",
-    "graphql": "17.0.2"
+    "graphql": "17.1.0"
   },
   "homepage": "https://github.com/RexCode-Digital/shopify-upgrade-guard#readme"
 }
