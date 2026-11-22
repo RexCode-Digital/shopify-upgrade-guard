@@ -54,11 +54,11 @@
   "devDependencies": {
     "@vercel/ncc": "0.45.0",
     "c8": "12.0.0",
-    "fast-check": "4.10.2"
+    "fast-check": "4.10.3"
   },
   "dependencies": {
     "@iarna/toml": "2.2.5",
-    "graphql": "17.0.2"
+    "graphql": "17.1.0"
   },
   "homepage": "https://github.com/RexCode-Digital/shopify-upgrade-guard#readme"
 }
